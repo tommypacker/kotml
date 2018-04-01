@@ -1,11 +1,11 @@
+import Utils.DataTransformer
+import Utils.MathHelper
 import krangl.DataFrame
 import krangl.DataFrameRow
 import java.util.Random
 
-class GaussianNB(data: DataFrame, labels: DataFrame) {
+class GaussianNB(rawData: DataFrame) {
 
-    var rawData: DataFrame
-    var rawLabels: DataFrame
     var data: MutableList<DataFrameRow>
     var labels: MutableList<String>
     var trainingData: MutableList<DataFrameRow>
@@ -14,17 +14,29 @@ class GaussianNB(data: DataFrame, labels: DataFrame) {
     var testLabels: MutableList<String>
 
     init {
-        this.rawData = data
-        this.rawLabels = labels
         this.data = mutableListOf()
         this.labels = mutableListOf()
         this.trainingData = mutableListOf()
         this.trainDataLabels = mutableListOf()
         this.testData = mutableListOf()
         this.testLabels = mutableListOf()
-        transformDataframe()
+        DataTransformer.transformDataframe(rawData, this.data, this.labels)
     }
 
+    /**
+     * Fit our model to the dataset
+     */
+    fun fit() {
+        splitDataset(0.70)
+        val summaries = summarizeByClass()
+        val predictions = getPredictions(summaries, testData)
+        val accuracy = MathHelper.getAccuracy(testLabels, predictions)
+        println(accuracy)
+    }
+
+    /**
+     * Split given data into training vs testing
+     */
     fun splitDataset(splitRatio: Double) {
         val trainSize = (this.data.size * splitRatio).toInt()
 
@@ -83,7 +95,7 @@ class GaussianNB(data: DataFrame, labels: DataFrame) {
         for (featureName in features.keys) {
             val featureVals = features.get(featureName)
             if (featureVals != null) {
-                summaries.put(featureName, Pair(featureVals.average(), stdev(featureVals)))
+                summaries.put(featureName, Pair(featureVals.average(), MathHelper.stdev(featureVals)))
             }
         }
         return summaries
@@ -102,7 +114,7 @@ class GaussianNB(data: DataFrame, labels: DataFrame) {
             val featureMap = separateFeatures(labelValRows!!)
             val summaryMap = summarizeFeatures(featureMap)
             for (feature in summaryMap.keys) {
-                println("Summary for " + labelVal + "." + feature + ": " + summaryMap.get(feature))
+                //println("Summary for " + labelVal + "." + feature + ": " + summaryMap.get(feature))
                 labelSummary.put(feature, summaryMap.get(feature)!!)
             }
             res.put(labelVal, labelSummary)
@@ -122,7 +134,7 @@ class GaussianNB(data: DataFrame, labels: DataFrame) {
                 val mean = summary!!.first
                 val stdev = summary.second
                 val x = inputVector.get(featureName) as Double
-                classProbability *= calculateProbability(x, mean, stdev)
+                classProbability *= MathHelper.calculateProbability(x, mean, stdev)
             }
             res.put(labelVal, classProbability)
         }
@@ -153,47 +165,6 @@ class GaussianNB(data: DataFrame, labels: DataFrame) {
             res.add(prediction)
         }
         return res
-    }
-
-    fun getAccuracy(testLabels: MutableList<String>, predictions: MutableList<String>) : Double {
-        var correct = 0.0
-        val numRows = testLabels.size
-        for (i in 0..numRows-1) {
-            if (predictions.get(i) == (testLabels.get(i))) {
-                correct += 1
-            }
-        }
-        return (correct / numRows) * 100.0
-    }
-
-    fun fit() {
-        val summaries = summarizeByClass()
-        val predictions = getPredictions(summaries, testData)
-        val accuracy = getAccuracy(testLabels, predictions)
-        println(accuracy)
-    }
-
-    fun stdev(vals: DoubleArray): Double {
-        val avg = vals.average()
-        val varianceVals = vals.map { i: Double -> Math.pow(i - avg, 2.0) / (vals.size - 1) }
-        val variance = varianceVals.sum()
-        return Math.sqrt(variance)
-    }
-
-    fun calculateProbability(x: Double, mean: Double, stdev: Double) : Double {
-        val variance = Math.pow(stdev, 2.0)
-        val exponent = -(Math.pow(x - mean, 2.0) / (2 * variance))
-        val eRaised = Math.pow(Math.E, exponent)
-        return (1 / Math.sqrt(2 * Math.PI * variance)) * eRaised
-    }
-
-    fun transformDataframe() {
-        val labelName = this.rawLabels.cols.get(0).name
-
-        for (i in 0..this.rawData.nrow-1) {
-            this.data.add(this.rawData.row(i))
-            this.labels.add(this.rawLabels.row(i).get(labelName) as String)
-        }
     }
 
     fun ClosedRange<Int>.random() =
