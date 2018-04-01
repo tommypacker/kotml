@@ -1,107 +1,31 @@
-import Utils.DataTransformer
 import Utils.MathHelper
-import krangl.DataFrame
-import krangl.DataFrameRow
-import java.util.Random
 
-class GaussianNB(rawData: DataFrame) {
+class GaussianNB(data: MutableList<Map<String, Any?>>, labels: MutableList<String>) {
 
-    var data: MutableList<DataFrameRow>
+    var data: MutableList<Map<String, Any?>>
     var labels: MutableList<String>
-    var trainingData: MutableList<DataFrameRow>
-    var trainDataLabels: MutableList<String>
-    var testData: MutableList<DataFrameRow>
-    var testLabels: MutableList<String>
+    var model: HashMap<String, HashMap<String, Pair<Double, Double>>>
 
     init {
-        this.data = mutableListOf()
-        this.labels = mutableListOf()
-        this.trainingData = mutableListOf()
-        this.trainDataLabels = mutableListOf()
-        this.testData = mutableListOf()
-        this.testLabels = mutableListOf()
-        DataTransformer.transformDataframe(rawData, this.data, this.labels)
+        this.data = data
+        this.labels = labels
+        this.model = HashMap()
     }
 
     /**
      * Fit our model to the dataset
      */
     fun fit() {
-        splitDataset(0.70)
-        val summaries = summarizeByClass()
-        val predictions = getPredictions(summaries, testData)
+        this.model = trainModel()
+    }
+
+    fun test(testData: MutableList<Map<String, Any?>>, testLabels: MutableList<String>) : Double {
+        val predictions = getPredictions(model, testData)
         val accuracy = MathHelper.getAccuracy(testLabels, predictions)
-        println(accuracy)
+        return accuracy
     }
 
-    /**
-     * Split given data into training vs testing
-     */
-    fun splitDataset(splitRatio: Double) {
-        val trainSize = (this.data.size * splitRatio).toInt()
-
-        // Copy Data
-        val copyData = mutableListOf<DataFrameRow>()
-        val copyLabels = mutableListOf<String>()
-        for (i in 0..this.data.size-1) {
-            copyData.add(this.data.get(i))
-            copyLabels.add(this.labels.get(i))
-        }
-
-        // Add to training data
-        while (trainingData.size < trainSize) {
-            val index = (0..copyData.size).random()
-            trainingData.add(copyData.get(index))
-            trainDataLabels.add(copyLabels.get(index))
-            copyData.removeAt(index)
-            copyLabels.removeAt(index)
-        }
-
-        this.testData = copyData
-        this.testLabels = copyLabels
-    }
-
-    fun separateByLabels() : HashMap<String, MutableList<DataFrameRow>> {
-        val res = HashMap<String, MutableList<DataFrameRow>>()
-        for (i in 0..this.trainingData.size-1) {
-            val row = this.trainingData.get(i)
-            val labelVal = this.trainDataLabels.get(i)
-            if (!res.containsKey(labelVal)) {
-                res.put(labelVal, mutableListOf())
-            }
-            res.get(labelVal)?.add(row)
-        }
-        return res
-    }
-
-    fun separateFeatures(dataCols: MutableList<DataFrameRow>) : HashMap<String, DoubleArray> {
-        val featureMap = HashMap<String, DoubleArray>()
-        val cols = this.trainingData.get(0).keys
-        for (colName in cols) {
-            val colVals = DoubleArray(dataCols.size)
-
-            // Need ability to slice by index rather than manually doing this
-            for (i in 0..dataCols.size-1) {
-                colVals[i] = dataCols.get(i).get(colName) as Double
-            }
-
-            featureMap.put(colName, colVals)
-        }
-        return featureMap
-    }
-
-    fun summarizeFeatures(features: HashMap<String, DoubleArray>) : HashMap<String, Pair<Double, Double>> {
-        val summaries = HashMap<String, Pair<Double, Double>>()
-        for (featureName in features.keys) {
-            val featureVals = features.get(featureName)
-            if (featureVals != null) {
-                summaries.put(featureName, Pair(featureVals.average(), MathHelper.stdev(featureVals)))
-            }
-        }
-        return summaries
-    }
-
-    fun summarizeByClass() : HashMap<String, HashMap<String, Pair<Double, Double>>> {
+    fun trainModel() : HashMap<String, HashMap<String, Pair<Double, Double>>> {
         val res = HashMap<String, HashMap<String, Pair<Double, Double>>>()
         val labelSepData = separateByLabels()
 
@@ -123,8 +47,56 @@ class GaussianNB(rawData: DataFrame) {
         return res
     }
 
+    fun separateByLabels() : HashMap<String, MutableList<Map<String, Any?>>> {
+        val res = HashMap<String, MutableList<Map<String, Any?>>>()
+        for (i in 0..this.data.size-1) {
+            val row = this.data.get(i)
+            val labelVal = this.labels.get(i)
+            if (!res.containsKey(labelVal)) {
+                res.put(labelVal, mutableListOf())
+            }
+            res.get(labelVal)?.add(row)
+        }
+        return res
+    }
+
+    fun separateFeatures(dataCols: MutableList<Map<String, Any?>>) : HashMap<String, DoubleArray> {
+        val featureMap = HashMap<String, DoubleArray>()
+        val cols = this.data.get(0).keys
+        for (colName in cols) {
+            val colVals = DoubleArray(dataCols.size)
+
+            // Need ability to slice by index rather than manually doing this
+            for (i in 0..dataCols.size-1) {
+                var curRow = dataCols.get(i).get(colName)
+                if (curRow is Int) {
+                    curRow = curRow.toDouble()
+                } else if (curRow is String) {
+                    curRow = 0.1
+                } else {
+                    curRow = curRow as Double
+                }
+                colVals[i] = curRow
+            }
+
+            featureMap.put(colName, colVals)
+        }
+        return featureMap
+    }
+
+    fun summarizeFeatures(features: HashMap<String, DoubleArray>) : HashMap<String, Pair<Double, Double>> {
+        val summaries = HashMap<String, Pair<Double, Double>>()
+        for (featureName in features.keys) {
+            val featureVals = features.get(featureName)
+            if (featureVals != null) {
+                summaries.put(featureName, Pair(featureVals.average(), MathHelper.stdev(featureVals)))
+            }
+        }
+        return summaries
+    }
+
     fun calculateClassProbabilities(summaries: HashMap<String, HashMap<String, Pair<Double, Double>>>,
-                                    inputVector: DataFrameRow) : HashMap<String, Double> {
+                                    inputVector: Map<String, Any?>) : HashMap<String, Double> {
         val res = HashMap<String, Double>()
         for (labelVal in summaries.keys) {
             var classProbability = 1.0
@@ -133,16 +105,25 @@ class GaussianNB(rawData: DataFrame) {
                 val summary = labelFeatureSummary.get(featureName)
                 val mean = summary!!.first
                 val stdev = summary.second
-                val x = inputVector.get(featureName) as Double
+                var curFeatureItem = inputVector.get(featureName)
+                if (curFeatureItem is Int) {
+                    curFeatureItem = curFeatureItem.toDouble()
+                } else if (curFeatureItem is String) {
+                    curFeatureItem = 0.1
+                } else {
+                    curFeatureItem = curFeatureItem as Double
+                }
+                val x = curFeatureItem
                 classProbability *= MathHelper.calculateProbability(x, mean, stdev)
             }
+            //println("cp: " + classProbability)
             res.put(labelVal, classProbability)
         }
         return res
     }
 
     fun predict(summaries: HashMap<String, HashMap<String, Pair<Double, Double>>>,
-                inputVector: DataFrameRow) : String {
+                inputVector: Map<String, Any?>) : String {
         val probabilties = calculateClassProbabilities(summaries, inputVector)
         var bestLabel = ""
         var bestProb = -1.0
@@ -157,7 +138,7 @@ class GaussianNB(rawData: DataFrame) {
     }
 
     fun getPredictions(summaries: HashMap<String, HashMap<String, Pair<Double, Double>>>,
-                       testData: MutableList<DataFrameRow>) : MutableList<String> {
+                       testData: MutableList<Map<String, Any?>>) : MutableList<String> {
         var res = mutableListOf<String>()
         val numRows = testData.size
         for (i in 0..numRows-1) {
@@ -166,7 +147,4 @@ class GaussianNB(rawData: DataFrame) {
         }
         return res
     }
-
-    fun ClosedRange<Int>.random() =
-            Random().nextInt(endInclusive - start) +  start
 }

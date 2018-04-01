@@ -20,6 +20,9 @@ class MathHelper {
             var correct = 0.0
             val numRows = testLabels.size
             for (i in 0..numRows-1) {
+                //println(predictions.get(i))
+                //println(testLabels.get(i))
+                //println()
                 if (predictions.get(i) == (testLabels.get(i))) {
                     correct += 1
                 }
