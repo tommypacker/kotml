@@ -17,14 +17,14 @@ class MathHelper {
         }
 
         fun getAccuracy(testLabels: MutableList<String>, predictions: MutableList<String>) : Double {
-            var correct = 0.0
+            var correct = 0
             val numRows = testLabels.size
             for (i in 0..numRows-1) {
                 if (predictions.get(i) == (testLabels.get(i))) {
                     correct += 1
                 }
             }
-            return (correct / numRows) * 100.0
+            return (correct.toDouble() / numRows) * 100.0
         }
     }
 }

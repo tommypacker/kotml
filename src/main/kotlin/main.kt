@@ -5,7 +5,7 @@ import krangl.readCSV
 
 fun main(args: Array<String>) {
     // Read Data from CSV
-    val dataset = DataFrame.readCSV("src/main/kotlin/breast-cancer.txt")
+    val dataset = DataFrame.readCSV("src/main/kotlin/iris.csv")
 
     // Format Data
     val data = mutableListOf<DataRow>()

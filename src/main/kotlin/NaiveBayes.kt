@@ -6,10 +6,13 @@ class GaussianNB() {
     var data: MutableList<DataRow>
     var labels: MutableList<String>
     var model: HashMap<String, HashMap<String, Pair<Double, Double>>>
+    var priors: HashMap<String, Double>
+    var totalRows: Int = 0
 
     init {
         this.data = mutableListOf()
         this.labels = mutableListOf()
+        this.priors = HashMap()
         this.model = HashMap()
     }
 
@@ -19,6 +22,7 @@ class GaussianNB() {
     fun fit(data: MutableList<DataRow>, labels: MutableList<String>) {
         this.data = data
         this.labels = labels
+        this.totalRows = data.size
         this.model = trainModel()
     }
 
@@ -41,6 +45,12 @@ class GaussianNB() {
     private fun trainModel() : HashMap<String, HashMap<String, Pair<Double, Double>>> {
         val res = HashMap<String, HashMap<String, Pair<Double, Double>>>()
         val labelSepData = separateByLabels()
+
+        // Calculate Priors
+        for (labelVal in labelSepData.keys) {
+            val classCount = labelSepData.get(labelVal)!!.size
+            this.priors.put(labelVal, classCount.toDouble()/this.totalRows)
+        }
 
         // Iterate through each label value
         for (labelVal in labelSepData.keys) {
@@ -105,16 +115,17 @@ class GaussianNB() {
                                     inputVector: DataRow) : HashMap<String, Double> {
         val res = HashMap<String, Double>()
         for (labelVal in summaries.keys) {
-            var classProbability = 1.0
+            var classProbability = 0.0
             val labelFeatureSummary = summaries.get(labelVal)
             for (featureName in labelFeatureSummary!!.keys) {
                 val summary = labelFeatureSummary.get(featureName)
                 val mean = summary!!.first
                 val stdev = summary.second
                 val x = inputVector.get(featureName) as Double
-                classProbability *= MathHelper.calculateProbability(x, mean, stdev)
+                classProbability += Math.log(MathHelper.calculateProbability(x, mean, stdev))
             }
-            //println("cp: " + classProbability)
+            // Add class prior
+            classProbability += Math.log(this.priors.get(labelVal)!!)
             res.put(labelVal, classProbability)
         }
         return res
@@ -123,7 +134,7 @@ class GaussianNB() {
     private fun predict(inputVector: DataRow) : String {
         val probabilties = calculateClassProbabilities(this.model, inputVector)
         var bestLabel = ""
-        var bestProb = -1.0
+        var bestProb = Int.MIN_VALUE.toDouble()
         for (labelName in probabilties.keys) {
             val curProb = probabilties.get(labelName)
             if (curProb!! > bestProb) {
