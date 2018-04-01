@@ -1,25 +1,28 @@
+import Utils.DataRow
 import Utils.MathHelper
 
-class GaussianNB(data: MutableList<Map<String, Any?>>, labels: MutableList<String>) {
+class GaussianNB() {
 
-    var data: MutableList<Map<String, Any?>>
+    var data: MutableList<DataRow>
     var labels: MutableList<String>
     var model: HashMap<String, HashMap<String, Pair<Double, Double>>>
 
     init {
-        this.data = data
-        this.labels = labels
+        this.data = mutableListOf()
+        this.labels = mutableListOf()
         this.model = HashMap()
     }
 
     /**
      * Fit our model to the dataset
      */
-    fun fit() {
+    fun fit(data: MutableList<DataRow>, labels: MutableList<String>) {
+        this.data = data
+        this.labels = labels
         this.model = trainModel()
     }
 
-    fun test(testData: MutableList<Map<String, Any?>>, testLabels: MutableList<String>) : Double {
+    fun test(testData: MutableList<DataRow>, testLabels: MutableList<String>) : Double {
         val predictions = getPredictions(model, testData)
         val accuracy = MathHelper.getAccuracy(testLabels, predictions)
         return accuracy
@@ -47,8 +50,8 @@ class GaussianNB(data: MutableList<Map<String, Any?>>, labels: MutableList<Strin
         return res
     }
 
-    fun separateByLabels() : HashMap<String, MutableList<Map<String, Any?>>> {
-        val res = HashMap<String, MutableList<Map<String, Any?>>>()
+    fun separateByLabels() : HashMap<String, MutableList<DataRow>> {
+        val res = HashMap<String, MutableList<DataRow>>()
         for (i in 0..this.data.size-1) {
             val row = this.data.get(i)
             val labelVal = this.labels.get(i)
@@ -60,7 +63,7 @@ class GaussianNB(data: MutableList<Map<String, Any?>>, labels: MutableList<Strin
         return res
     }
 
-    fun separateFeatures(dataCols: MutableList<Map<String, Any?>>) : HashMap<String, DoubleArray> {
+    fun separateFeatures(dataCols: MutableList<DataRow>) : HashMap<String, DoubleArray> {
         val featureMap = HashMap<String, DoubleArray>()
         val cols = this.data.get(0).keys
         for (colName in cols) {
@@ -96,7 +99,7 @@ class GaussianNB(data: MutableList<Map<String, Any?>>, labels: MutableList<Strin
     }
 
     fun calculateClassProbabilities(summaries: HashMap<String, HashMap<String, Pair<Double, Double>>>,
-                                    inputVector: Map<String, Any?>) : HashMap<String, Double> {
+                                    inputVector: DataRow) : HashMap<String, Double> {
         val res = HashMap<String, Double>()
         for (labelVal in summaries.keys) {
             var classProbability = 1.0
@@ -123,7 +126,7 @@ class GaussianNB(data: MutableList<Map<String, Any?>>, labels: MutableList<Strin
     }
 
     fun predict(summaries: HashMap<String, HashMap<String, Pair<Double, Double>>>,
-                inputVector: Map<String, Any?>) : String {
+                inputVector: DataRow) : String {
         val probabilties = calculateClassProbabilities(summaries, inputVector)
         var bestLabel = ""
         var bestProb = -1.0
@@ -138,7 +141,7 @@ class GaussianNB(data: MutableList<Map<String, Any?>>, labels: MutableList<Strin
     }
 
     fun getPredictions(summaries: HashMap<String, HashMap<String, Pair<Double, Double>>>,
-                       testData: MutableList<Map<String, Any?>>) : MutableList<String> {
+                       testData: MutableList<DataRow>) : MutableList<String> {
         var res = mutableListOf<String>()
         val numRows = testData.size
         for (i in 0..numRows-1) {

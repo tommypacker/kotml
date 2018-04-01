@@ -3,13 +3,15 @@ package Utils
 import krangl.DataFrame
 import java.util.*
 
+typealias DataRow = Map<String, Any?>
+typealias DataSplits = Pair<Pair<MutableList<DataRow>, MutableList<String>>, Pair<MutableList<DataRow>, MutableList<String>>>
+
 class DataTransformer {
     companion object {
-
         /**
          * Converts a DataFrame into a list of data rows (for features) and strings (labels)
          */
-        fun transformDataframe(rawData: DataFrame, data: MutableList<Map<String, Any?>>, labels: MutableList<String>, ignoreFirstCol: Boolean) {
+        fun transformDataframe(rawData: DataFrame, data: MutableList<DataRow>, labels: MutableList<String>, ignoreFirstCol: Boolean) {
             val numCols = rawData.ncol
             val firstColName = rawData.cols.get(0).name
             val labelName = rawData.cols.get(numCols-1).name
@@ -22,21 +24,19 @@ class DataTransformer {
                 } else {
                     data.add(curRow.minus(labelName))
                 }
-
             }
         }
 
         /**
          * Split given data into training vs testing
          */
-        fun splitDataset(data: MutableList<Map<String, Any?>>, labels: MutableList<String>, splitRatio: Double) :
-                Pair<Pair<MutableList<Map<String, Any?>>, MutableList<String>>, Pair<MutableList<Map<String, Any?>>, MutableList<String>>> {
+        fun splitDataset(data: MutableList<DataRow>, labels: MutableList<String>, splitRatio: Double) : DataSplits {
             val trainSize = (data.size * splitRatio).toInt()
-            val trainingData = mutableListOf<Map<String, Any?>>()
+            val trainingData = mutableListOf<DataRow>()
             val trainDataLabels = mutableListOf<String>()
 
             // Copy Data
-            val copyData = mutableListOf<Map<String, Any?>>()
+            val copyData = mutableListOf<DataRow>()
             val copyLabels = mutableListOf<String>()
             for (i in 0..data.size-1) {
                 copyData.add(data.get(i))

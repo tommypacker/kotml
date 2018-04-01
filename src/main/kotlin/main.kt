@@ -1,3 +1,4 @@
+import Utils.DataRow
 import Utils.DataTransformer
 import krangl.DataFrame
 import krangl.readCSV
@@ -7,7 +8,7 @@ fun main(args: Array<String>) {
     val dataset = DataFrame.readCSV("src/main/kotlin/breast-cancer.txt")
 
     // Format Data
-    val data = mutableListOf<Map<String, Any?>>()
+    val data = mutableListOf<DataRow>()
     val labels = mutableListOf<String>()
     DataTransformer.transformDataframe(dataset, data, labels, true)
 
@@ -19,8 +20,8 @@ fun main(args: Array<String>) {
     val testLabels = splits.second.second
 
     // Train Model
-    val NB = GaussianNB(trainingData, trainingLabels)
-    NB.fit()
+    val NB = GaussianNB()
+    NB.fit(trainingData, trainingLabels)
 
     // Test Model Accuracy
     val accuracy = NB.test(testData, testLabels)
