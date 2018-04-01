@@ -39,7 +39,6 @@ class DataTransformer {
                     }
                     curRow = curRow.minus(feature).plus(Pair(feature, value))
                 }
-
                 if (shouldSkipRow) continue
                 labels.add(curRow.get(labelName).toString())
                 data.add(curRow.minus(labelName))
