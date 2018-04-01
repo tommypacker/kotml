@@ -17,13 +17,32 @@ class DataTransformer {
             val labelName = rawData.cols.get(numCols-1).name
 
             for (i in 0..rawData.nrow-1) {
-                val curRow = rawData.row(i)
-                labels.add(curRow.get(labelName).toString())
+                var curRow = rawData.row(i)
                 if (ignoreFirstCol) {
-                    data.add(curRow.minus(labelName).minus(firstColName))
-                } else {
-                    data.add(curRow.minus(labelName))
+                    curRow = curRow.minus(firstColName)
                 }
+
+                var shouldSkipRow = false
+                // Drop rows with missing data
+                // Convert feature fields to doubles
+                for (feature in curRow.minus(labelName).keys) {
+                    var value = curRow.get(feature)
+                    if (value is String) {
+                        if (value.toDoubleOrNull() == null) {
+                            shouldSkipRow = true
+                            break
+                        } else {
+                            value = value.toDouble()
+                        }
+                    } else if (value is Int) {
+                        value = value.toDouble()
+                    }
+                    curRow = curRow.minus(feature).plus(Pair(feature, value))
+                }
+
+                if (shouldSkipRow) continue
+                labels.add(curRow.get(labelName).toString())
+                data.add(curRow.minus(labelName))
             }
         }
 

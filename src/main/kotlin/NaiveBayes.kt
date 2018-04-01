@@ -71,14 +71,7 @@ class GaussianNB() {
 
             // Need ability to slice by index rather than manually doing this
             for (i in 0..dataCols.size-1) {
-                var curRow = dataCols.get(i).get(colName)
-                if (curRow is Int) {
-                    curRow = curRow.toDouble()
-                } else if (curRow is String) {
-                    curRow = 0.1
-                } else {
-                    curRow = curRow as Double
-                }
+                val curRow = dataCols.get(i).get(colName) as Double
                 colVals[i] = curRow
             }
 
@@ -108,15 +101,7 @@ class GaussianNB() {
                 val summary = labelFeatureSummary.get(featureName)
                 val mean = summary!!.first
                 val stdev = summary.second
-                var curFeatureItem = inputVector.get(featureName)
-                if (curFeatureItem is Int) {
-                    curFeatureItem = curFeatureItem.toDouble()
-                } else if (curFeatureItem is String) {
-                    curFeatureItem = 0.1
-                } else {
-                    curFeatureItem = curFeatureItem as Double
-                }
-                val x = curFeatureItem
+                val x = inputVector.get(featureName) as Double
                 classProbability *= MathHelper.calculateProbability(x, mean, stdev)
             }
             //println("cp: " + classProbability)
