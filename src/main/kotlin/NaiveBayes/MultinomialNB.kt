@@ -58,6 +58,8 @@ class MultinomialNB {
             for (featureName in aggregatedData.keys) {
                 totalNumfeatures += aggregatedData.get(featureName)!!
             }
+
+            // Calculate feature probabilities conditioned on given label
             val n = distinctFeatures.size
             for (featureName in aggregatedData.keys) {
                 // Use LaPlace smoothing
@@ -71,13 +73,9 @@ class MultinomialNB {
     private fun predict(document: DataRow) : String {
         var bestProb = Double.MIN_VALUE
         var bestLabel = ""
+
         for (labelVal in this.labels) {
             var likelihood = 1.0
-            var totalfeatures = 0.0
-            for (feature in document.keys) {
-                totalfeatures += document.get(feature) as Double
-            }
-
             for (feature in document.keys) {
                 val featureCount = document.get(feature) as Double
                 likelihood *= Math.pow(this.model.get(labelVal)!!.get(feature)!!, featureCount)

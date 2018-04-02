@@ -1,54 +1,17 @@
 import NaiveBayes.GaussianNB
 import NaiveBayes.MultinomialNB
-import Utils.DataRow
-import Utils.DataTransformer
-import krangl.DataFrame
-import krangl.readCSV
+import Utils.DataContainer
 
 fun main(args: Array<String>) {
-    // Read Data from CSV
-    /*val dataset = DataFrame.readCSV("src/main/kotlin/breast-cancer.txt")
+    val dataset = DataContainer("src/main/kotlin/Datasets/breast-cancer.txt", true, 0.8)
 
-    // Format Data
-    val data = mutableListOf<DataRow>()
-    val labels = mutableListOf<String>()
-    DataTransformer.transformDataframe(dataset, data, labels, false)
+    val MNB = MultinomialNB()
+    MNB.fit(dataset.trainingData, dataset.trainingLabels)
+    var accuracy = MNB.test(dataset.testData, dataset.testLabels)
+    println(accuracy)
 
-    // Split Data
-    val splits = DataTransformer.splitDataset(data, labels, .7)
-    val trainingData = splits.first.first
-    val trainingLabels = splits.first.second
-    val testData = splits.second.first
-    val testLabels = splits.second.second
-
-    // Train Model
-    val NB = GaussianNB()
-    NB.fit(trainingData, trainingLabels)
-    val predictions = NB.getPredictions(trainingData)
-    println(predictions)
-
-    // Test Model Accuracy
-    val accuracy = NB.test(testData, testLabels)
-    print(accuracy)*/
-
-    val dataset = DataFrame.readCSV("src/main/kotlin/test.txt")
-
-    // Format Data
-    val data = mutableListOf<DataRow>()
-    val labels = mutableListOf<String>()
-    DataTransformer.transformDataframe(dataset, data, labels, true)
-
-    // Split Data
-    val splits = DataTransformer.splitDataset(data, labels, .7)
-    val trainingData = splits.first.first
-    val trainingLabels = splits.first.second
-    val testData = splits.second.first
-    val testLabels = splits.second.second
-
-    // Train Model
-    val NB = MultinomialNB()
-    NB.fit(trainingData, trainingLabels)
-    val predictions = NB.getPredictions(testData)
-    println(testData)
-    println(predictions)
+    val GNB = GaussianNB()
+    GNB.fit(dataset.trainingData, dataset.trainingLabels)
+    accuracy = GNB.test(dataset.testData, dataset.testLabels)
+    println(accuracy)
 }
