@@ -9,11 +9,17 @@ class MathHelper {
             return Math.sqrt(variance)
         }
 
-        fun calculateProbability(x: Double, mean: Double, stdev: Double) : Double {
+        fun calculateGaussian(x: Double, mean: Double, stdev: Double) : Double {
             val variance = Math.pow(stdev, 2.0)
             val exponent = -(Math.pow(x - mean, 2.0) / (2 * variance))
             val eRaised = Math.pow(Math.E, exponent)
             return (1 / Math.sqrt(2 * Math.PI * variance)) * eRaised
+        }
+
+        fun factorial(x: Int) : Int {
+            var res = 1
+            for (i in 1..x) res *= i
+            return res
         }
 
         fun getAccuracy(testLabels: MutableList<String>, predictions: MutableList<String>) : Double {

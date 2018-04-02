@@ -1,3 +1,5 @@
+package NaiveBayes
+
 import Utils.DataRow
 import Utils.MathHelper
 
@@ -111,6 +113,9 @@ class GaussianNB() {
         return summaries
     }
 
+    /**
+     * Calculate based on Gaussian Distribution
+     */
     private fun calculateClassProbabilities(summaries: HashMap<String, HashMap<String, Pair<Double, Double>>>,
                                     inputVector: DataRow) : HashMap<String, Double> {
         val res = HashMap<String, Double>()
@@ -122,7 +127,7 @@ class GaussianNB() {
                 val mean = summary!!.first
                 val stdev = summary.second
                 val x = inputVector.get(featureName) as Double
-                classProbability += Math.log(MathHelper.calculateProbability(x, mean, stdev))
+                classProbability += Math.log(MathHelper.calculateGaussian(x, mean, stdev))
             }
             // Add class prior
             classProbability += Math.log(this.priors.get(labelVal)!!)
