@@ -58,20 +58,14 @@ class BernoulliNB {
 
             // Get Occurrences
             val classFeatureOccurrences = aggregateOccurrencesPerClass(classData)
-            //println(classVal + ": " + classFeatureOccurrences)
 
-            // Calculate Percentage of Docs that a Feature appears in per class
+            // Calculate percentage of docs that a feature appears in per class
             val classProbabilities = hashMapOf<String, Double>()
-            var totalNumfeatures = 0.0
-            for (featureName in classFeatureOccurrences.keys) {
-                totalNumfeatures += classFeatureOccurrences.get(featureName)!!
-            }
             for (featureName in classFeatureOccurrences.keys) {
                 classProbabilities.put(featureName, classFeatureOccurrences.getValue(featureName) / classData.size)
             }
             res.put(classVal, classProbabilities)
         }
-        println(res)
         return res
     }
 
@@ -87,14 +81,13 @@ class BernoulliNB {
                 if (featureCount > 0) x_i = 1.0
 
                 val p_ki = this.model.get(labelVal)!!.get(feature)!!
-                likelihood *= ((Math.pow(p_ki, x_i) + Math.pow((1 - p_ki), (1 - x_i))))
+                likelihood *= (Math.pow(p_ki, x_i) * Math.pow((1 - p_ki), (1 - x_i)))
             }
             likelihood *= this.priors.get(labelVal)!!
             if (likelihood > bestProb) {
                 bestProb = likelihood
                 bestLabel = labelVal
             }
-            //println("" + likelihood + ": " + labelVal + ": " + document)
         }
         return bestLabel
     }
