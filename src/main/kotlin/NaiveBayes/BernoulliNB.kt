@@ -3,14 +3,13 @@ package NaiveBayes
 import Utils.DataRow
 import Utils.MathHelper
 
-class MultinomialNB (alpha: Double = 1.0){
+class BernoulliNB {
     var data: MutableList<DataRow>
     var labels: MutableList<String>
     var labelSet: HashSet<String>
     var priors: HashMap<String, Double>
     var model: HashMap<String, HashMap<String, Double>>
     var numRows: Int = 0
-    val alpha: Double
     var distinctFeatures: HashSet<String>
 
     init {
@@ -20,14 +19,13 @@ class MultinomialNB (alpha: Double = 1.0){
         this.model = hashMapOf()
         this.priors = hashMapOf()
         this.distinctFeatures = hashSetOf()
-        this.alpha = alpha
     }
 
     fun fit(data: MutableList<DataRow>, labels: MutableList<String>) {
         this.data = data
         this.labels = labels
         for (label in labels) {
-            this.labelSet.add(label)
+            labelSet.add(label)
         }
         this.numRows = data.size
         this.model = trainModel()
@@ -51,7 +49,6 @@ class MultinomialNB (alpha: Double = 1.0){
         val res = HashMap<String, HashMap<String, Double>>()
         val sepClassData = separateByLabels()
 
-        val n = this.data.get(0).keys.size
         for (classVal in sepClassData.keys) {
             // Get all docs for a class
             val classData = sepClassData.get(classVal)
@@ -59,21 +56,22 @@ class MultinomialNB (alpha: Double = 1.0){
             // Calculate Priors
             this.priors.put(classVal, classData!!.size.toDouble()/this.numRows)
 
-            // Aggregate feature counts per class
-            val aggregatedData = aggregateCountsPerClass(classData)
-            val classProbabilties = HashMap<String, Double>()
-            var totalNumfeatures = 0.0
-            for (featureName in aggregatedData.keys) {
-                totalNumfeatures += aggregatedData.get(featureName)!!
-            }
+            // Get Occurrences
+            val classFeatureOccurrences = aggregateOccurrencesPerClass(classData)
+            //println(classVal + ": " + classFeatureOccurrences)
 
-            // Calculate feature probabilities conditioned on given label
-            for (featureName in aggregatedData.keys) {
-                // Use LaPlace smoothing when calculating theta values
-                classProbabilties.put(featureName, (aggregatedData.get(featureName)!!.toDouble() + alpha) / (totalNumfeatures + (alpha * n)))
+            // Calculate Percentage of Docs that a Feature appears in per class
+            val classProbabilities = hashMapOf<String, Double>()
+            var totalNumfeatures = 0.0
+            for (featureName in classFeatureOccurrences.keys) {
+                totalNumfeatures += classFeatureOccurrences.get(featureName)!!
             }
-            res.put(classVal, classProbabilties)
+            for (featureName in classFeatureOccurrences.keys) {
+                classProbabilities.put(featureName, classFeatureOccurrences.getValue(featureName) / classData.size)
+            }
+            res.put(classVal, classProbabilities)
         }
+        println(res)
         return res
     }
 
@@ -82,26 +80,35 @@ class MultinomialNB (alpha: Double = 1.0){
         var bestLabel = ""
 
         for (labelVal in this.labelSet) {
-            var likelihood = 0.0
+            var likelihood = 1.0
             for (feature in document.keys) {
                 val featureCount = document.get(feature) as Double
-                likelihood += Math.log(this.model.get(labelVal)!!.get(feature)!!) * featureCount
+                var x_i = 0.0
+                if (featureCount > 0) x_i = 1.0
+
+                val p_ki = this.model.get(labelVal)!!.get(feature)!!
+                likelihood *= ((Math.pow(p_ki, x_i) + Math.pow((1 - p_ki), (1 - x_i))))
             }
-            likelihood += Math.log(this.priors.get(labelVal)!!)
+            likelihood *= this.priors.get(labelVal)!!
             if (likelihood > bestProb) {
                 bestProb = likelihood
                 bestLabel = labelVal
             }
+            //println("" + likelihood + ": " + labelVal + ": " + document)
         }
         return bestLabel
     }
 
-    private fun aggregateCountsPerClass(classData: MutableList<DataRow>) : HashMap<String, Double> {
+    // Count number of documents that contain a feature
+    private fun aggregateOccurrencesPerClass(classData: MutableList<DataRow>) : HashMap<String, Double> {
         val res = HashMap<String, Double>()
         for (row in classData) {
+            // Go through each document
             for(featureName in row.keys) {
                 val count = row.get(featureName) as Double
-                res.put(featureName, res.getOrDefault(featureName, 0.0) + count)
+                var presence =  0.0
+                if (count > 0) presence = 1.0
+                res.put(featureName, res.getOrDefault(featureName, 0.0) + presence)
                 distinctFeatures.add(featureName)
             }
         }
