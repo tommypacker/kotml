@@ -9,14 +9,14 @@ class MultinomialNB {
     var priors: HashMap<String, Double>
     var model: HashMap<String, HashMap<String, Double>>
     var numRows: Int = 0
-    var distinctWords: HashSet<String>
+    var distinctFeatures: HashSet<String>
 
     init {
         this.data = mutableListOf()
         this.labels = mutableListOf()
         this.model = hashMapOf()
         this.priors = hashMapOf()
-        this.distinctWords = hashSetOf()
+        this.distinctFeatures = hashSetOf()
     }
 
     fun fit(data: MutableList<DataRow>, labels: MutableList<String>) {
@@ -47,20 +47,21 @@ class MultinomialNB {
         for (labelVal in sepClassData.keys) {
             // Get all docs for a class
             val classData = sepClassData.get(labelVal)
+
             // Calculate Priors
             this.priors.put(labelVal, classData!!.size.toDouble()/this.numRows)
-            val aggregatedData = aggregateCountsPerClass(classData)
-            //println(labelVal + ": " + aggregatedData)
-            val classProbabilties = HashMap<String, Double>()
 
-            var totalNumWords = 0
+            // Aggregate feature Counts
+            val aggregatedData = aggregateCountsPerClass(classData)
+            val classProbabilties = HashMap<String, Double>()
+            var totalNumfeatures = 0.0
             for (featureName in aggregatedData.keys) {
-                totalNumWords += aggregatedData.get(featureName)!!
+                totalNumfeatures += aggregatedData.get(featureName)!!
             }
-            val n = distinctWords.size
+            val n = distinctFeatures.size
             for (featureName in aggregatedData.keys) {
                 // Use LaPlace smoothing
-                classProbabilties.put(featureName, (aggregatedData.get(featureName)!!.toDouble() + 1) / (totalNumWords + n))
+                classProbabilties.put(featureName, (aggregatedData.get(featureName)!!.toDouble() + 1) / (totalNumfeatures + n))
             }
             res.put(labelVal, classProbabilties)
         }
@@ -71,34 +72,32 @@ class MultinomialNB {
         var bestProb = Double.MIN_VALUE
         var bestLabel = ""
         for (labelVal in this.labels) {
-            var curProb = 1.0
             var likelihood = 1.0
-            var totalWords = 0
-            for (word in document.keys) {
-                totalWords += (document.get(word) as Double).toInt()
+            var totalfeatures = 0.0
+            for (feature in document.keys) {
+                totalfeatures += document.get(feature) as Double
             }
 
-            for (word in document.keys) {
-                val wordCount = document.get(word) as Double
-                likelihood *= Math.pow(this.model.get(labelVal)!!.get(word)!!, wordCount)
+            for (feature in document.keys) {
+                val featureCount = document.get(feature) as Double
+                likelihood *= Math.pow(this.model.get(labelVal)!!.get(feature)!!, featureCount)
             }
-            curProb *= likelihood
-            curProb *= this.priors.get(labelVal)!!
-            if (curProb > bestProb) {
-                bestProb = curProb
+            likelihood *= this.priors.get(labelVal)!!
+            if (likelihood > bestProb) {
+                bestProb = likelihood
                 bestLabel = labelVal
             }
         }
         return bestLabel
     }
 
-    private fun aggregateCountsPerClass(classData: MutableList<DataRow>) : HashMap<String, Int> {
-        val res = HashMap<String, Int>()
+    private fun aggregateCountsPerClass(classData: MutableList<DataRow>) : HashMap<String, Double> {
+        val res = HashMap<String, Double>()
         for (row in classData) {
             for(featureName in row.keys) {
-                val count = (row.get(featureName) as Double).toInt()
-                res.put(featureName, res.getOrDefault(featureName, 0) + count)
-                distinctWords.add(featureName)
+                val count = row.get(featureName) as Double
+                res.put(featureName, res.getOrDefault(featureName, 0.0) + count)
+                distinctFeatures.add(featureName)
             }
         }
         return res
