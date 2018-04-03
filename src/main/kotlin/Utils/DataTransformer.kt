@@ -5,6 +5,7 @@ import java.util.*
 
 typealias DataRow = Map<String, Any?>
 typealias DataSplits = Pair<Pair<MutableList<DataRow>, MutableList<String>>, Pair<MutableList<DataRow>, MutableList<String>>>
+typealias Summary = Pair<Double, Double>
 
 class DataTransformer {
     companion object {

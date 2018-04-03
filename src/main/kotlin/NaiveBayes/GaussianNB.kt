@@ -2,12 +2,13 @@ package NaiveBayes
 
 import Utils.DataRow
 import Utils.MathHelper
+import Utils.Summary
 
 class GaussianNB() {
 
     var data: MutableList<DataRow>
     var labels: MutableList<String>
-    var model: HashMap<String, HashMap<String, Pair<Double, Double>>>
+    var model: HashMap<String, HashMap<String, Summary>>
     var priors: HashMap<String, Double>
     var totalRows: Int = 0
 
@@ -19,7 +20,7 @@ class GaussianNB() {
     }
 
     /**
-     * Fit our model to the dataset
+     * Fit model to given data and labels
      */
     fun fit(data: MutableList<DataRow>, labels: MutableList<String>) {
         this.data = data
@@ -44,9 +45,9 @@ class GaussianNB() {
         return res
     }
 
-    private fun trainModel() : HashMap<String, HashMap<String, Pair<Double, Double>>> {
-        val res = HashMap<String, HashMap<String, Pair<Double, Double>>>()
-        val labelSepData = separateByLabels()
+    private fun trainModel() : HashMap<String, HashMap<String, Summary>> {
+        val res = HashMap<String, HashMap<String, Summary>>()
+        val labelSepData = separateByClass()
 
         // Calculate Priors
         for (labelVal in labelSepData.keys) {
@@ -56,7 +57,7 @@ class GaussianNB() {
 
         // Iterate through each label value
         for (labelVal in labelSepData.keys) {
-            val labelSummary = HashMap<String, Pair<Double, Double>>()
+            val labelSummary = HashMap<String, Summary>()
             val labelValRows = labelSepData.get(labelVal)
 
             // Mapping of feature to values
@@ -72,19 +73,25 @@ class GaussianNB() {
         return res
     }
 
-    private fun separateByLabels() : HashMap<String, MutableList<DataRow>> {
+    /**
+     * Separates data into a mapping of class value to datarows belonging to that class
+     */
+    private fun separateByClass() : HashMap<String, MutableList<DataRow>> {
         val res = HashMap<String, MutableList<DataRow>>()
         for (i in 0..this.data.size-1) {
             val row = this.data.get(i)
-            val labelVal = this.labels.get(i)
-            if (!res.containsKey(labelVal)) {
-                res.put(labelVal, mutableListOf())
+            val classVal = this.labels.get(i)
+            if (!res.containsKey(classVal)) {
+                res.put(classVal, mutableListOf())
             }
-            res.get(labelVal)?.add(row)
+            res.get(classVal)?.add(row)
         }
         return res
     }
 
+    /**
+     * Returns a list of each feature column mapped to a list of its values
+     */
     private fun separateFeatures(dataCols: MutableList<DataRow>) : HashMap<String, DoubleArray> {
         val featureMap = HashMap<String, DoubleArray>()
         val cols = this.data.get(0).keys
@@ -102,8 +109,11 @@ class GaussianNB() {
         return featureMap
     }
 
-    private fun summarizeFeatures(features: HashMap<String, DoubleArray>) : HashMap<String, Pair<Double, Double>> {
-        val summaries = HashMap<String, Pair<Double, Double>>()
+    /**
+     * Calculate the mean and stdev of list of feature values
+     */
+    private fun summarizeFeatures(features: HashMap<String, DoubleArray>) : HashMap<String, Summary> {
+        val summaries = HashMap<String, Summary>()
         for (featureName in features.keys) {
             val featureVals = features.get(featureName)
             if (featureVals != null) {
@@ -114,14 +124,15 @@ class GaussianNB() {
     }
 
     /**
-     * Calculate based on Gaussian Distribution
+     * Calculate P(x|classVal) based on Gaussian Distribution
+     * where x is the feature value and classVal is the given class
      */
-    private fun calculateClassProbabilities(summaries: HashMap<String, HashMap<String, Pair<Double, Double>>>,
+    private fun calculateClassProbabilities(summaries: HashMap<String, HashMap<String, Summary>>,
                                     inputVector: DataRow) : HashMap<String, Double> {
         val res = HashMap<String, Double>()
-        for (labelVal in summaries.keys) {
+        for (classVal in summaries.keys) {
             var classProbability = 0.0
-            val labelFeatureSummary = summaries.get(labelVal)
+            val labelFeatureSummary = summaries.get(classVal)
             for (featureName in labelFeatureSummary!!.keys) {
                 val summary = labelFeatureSummary.get(featureName)
                 val mean = summary!!.first
@@ -130,12 +141,15 @@ class GaussianNB() {
                 classProbability += Math.log(MathHelper.calculateGaussian(x, mean, stdev))
             }
             // Add class prior
-            classProbability += Math.log(this.priors.get(labelVal)!!)
-            res.put(labelVal, classProbability)
+            classProbability += Math.log(this.priors.get(classVal)!!)
+            res.put(classVal, classProbability)
         }
         return res
     }
 
+    /**
+     * Predict by taking maximum a posteriori estimate (MAP)
+     */
     private fun predict(inputVector: DataRow) : String {
         val probabilties = calculateClassProbabilities(this.model, inputVector)
         var bestLabel = ""

@@ -21,6 +21,9 @@ class BernoulliNB {
         this.distinctFeatures = hashSetOf()
     }
 
+    /**
+     * Fit model to given data and labels
+     */
     fun fit(data: MutableList<DataRow>, labels: MutableList<String>) {
         this.data = data
         this.labels = labels
@@ -74,26 +77,28 @@ class BernoulliNB {
         var bestProb = Int.MIN_VALUE.toDouble()
         var bestLabel = ""
 
-        for (labelVal in this.labelSet) {
+        for (classVal in this.labelSet) {
             var likelihood = 0.0
             for (feature in document.keys) {
                 val featureCount = document.get(feature) as Double
                 var x_i = 0.0
                 if (featureCount > 0) x_i = 1.0
 
-                val p_ki = this.model.get(labelVal)!!.get(feature)!!
+                val p_ki = this.model.get(classVal)!!.get(feature)!!
                 likelihood += (x_i * Math.log(p_ki)) + ((1 - x_i) * Math.log(1 - p_ki))
             }
-            likelihood += Math.log(this.priors.get(labelVal)!!)
+            likelihood += Math.log(this.priors.get(classVal)!!)
             if (likelihood > bestProb) {
                 bestProb = likelihood
-                bestLabel = labelVal
+                bestLabel = classVal
             }
         }
         return bestLabel
     }
 
-    // Count number of documents that contain a feature
+    /**
+     * Count number of documents that contain a feature
+     */
     private fun aggregateOccurrencesPerClass(classData: MutableList<DataRow>) : HashMap<String, Double> {
         val res = HashMap<String, Double>()
         for (row in classData) {
@@ -109,6 +114,9 @@ class BernoulliNB {
         return res
     }
 
+    /**
+     * Separates data into a mapping of class value to datarows belonging to that class
+     */
     private fun separateByLabels() : HashMap<String, MutableList<DataRow>> {
         val res = HashMap<String, MutableList<DataRow>>()
         for (i in 0..this.data.size-1) {

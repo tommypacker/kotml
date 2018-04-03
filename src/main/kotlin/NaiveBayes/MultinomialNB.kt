@@ -23,6 +23,9 @@ class MultinomialNB (alpha: Double = 1.0){
         this.alpha = alpha
     }
 
+    /**
+     * Fit model to given data and labels
+     */
     fun fit(data: MutableList<DataRow>, labels: MutableList<String>) {
         this.data = data
         this.labels = labels
@@ -49,7 +52,7 @@ class MultinomialNB (alpha: Double = 1.0){
 
     private fun trainModel() : HashMap<String, HashMap<String, Double>> {
         val res = HashMap<String, HashMap<String, Double>>()
-        val sepClassData = separateByLabels()
+        val sepClassData = separateByClass()
 
         val n = this.data.get(0).keys.size
         for (classVal in sepClassData.keys) {
@@ -67,7 +70,7 @@ class MultinomialNB (alpha: Double = 1.0){
                 totalNumfeatures += aggregatedData.get(featureName)!!
             }
 
-            // Calculate feature probabilities conditioned on given label
+            // Calculate feature probabilities conditioned on given class
             for (featureName in aggregatedData.keys) {
                 // Use LaPlace smoothing when calculating theta values
                 classProbabilties.put(featureName, (aggregatedData.get(featureName)!!.toDouble() + alpha) / (totalNumfeatures + (alpha * n)))
@@ -81,21 +84,25 @@ class MultinomialNB (alpha: Double = 1.0){
         var bestProb = Int.MIN_VALUE.toDouble()
         var bestLabel = ""
 
-        for (labelVal in this.labelSet) {
+        for (classVal in this.labelSet) {
             var likelihood = 0.0
             for (feature in document.keys) {
                 val featureCount = document.get(feature) as Double
-                likelihood += Math.log(this.model.get(labelVal)!!.get(feature)!!) * featureCount
+                val conditionalProb = this.model.get(classVal)!!.get(feature)!!
+                likelihood += Math.log(conditionalProb) * featureCount
             }
-            likelihood += Math.log(this.priors.get(labelVal)!!)
+            likelihood += Math.log(this.priors.get(classVal)!!)
             if (likelihood > bestProb) {
                 bestProb = likelihood
-                bestLabel = labelVal
+                bestLabel = classVal
             }
         }
         return bestLabel
     }
 
+    /**
+     * Counts total number of occurrences of a feature in a given class
+     */
     private fun aggregateCountsPerClass(classData: MutableList<DataRow>) : HashMap<String, Double> {
         val res = HashMap<String, Double>()
         for (row in classData) {
@@ -108,7 +115,10 @@ class MultinomialNB (alpha: Double = 1.0){
         return res
     }
 
-    private fun separateByLabels() : HashMap<String, MutableList<DataRow>> {
+    /**
+     * Separates data into a mapping of class value to datarows belonging to that class
+     */
+    private fun separateByClass() : HashMap<String, MutableList<DataRow>> {
         val res = HashMap<String, MutableList<DataRow>>()
         for (i in 0..this.data.size-1) {
             val row = this.data.get(i)
