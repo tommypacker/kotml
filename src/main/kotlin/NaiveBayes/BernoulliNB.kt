@@ -62,7 +62,8 @@ class BernoulliNB {
             // Calculate percentage of docs that a feature appears in per class
             val classProbabilities = hashMapOf<String, Double>()
             for (featureName in classFeatureOccurrences.keys) {
-                classProbabilities.put(featureName, classFeatureOccurrences.getValue(featureName) / classData.size)
+                // Use laplacian smoothing to avoid probabilities with 0 or 1
+                classProbabilities.put(featureName, (classFeatureOccurrences.getValue(featureName) + 1) / (classData.size + 2))
             }
             res.put(classVal, classProbabilities)
         }
@@ -74,16 +75,16 @@ class BernoulliNB {
         var bestLabel = ""
 
         for (labelVal in this.labelSet) {
-            var likelihood = 1.0
+            var likelihood = 0.0
             for (feature in document.keys) {
                 val featureCount = document.get(feature) as Double
                 var x_i = 0.0
                 if (featureCount > 0) x_i = 1.0
 
                 val p_ki = this.model.get(labelVal)!!.get(feature)!!
-                likelihood *= (Math.pow(p_ki, x_i) * Math.pow((1 - p_ki), (1 - x_i)))
+                likelihood += (x_i * Math.log(p_ki)) + ((1 - x_i) * Math.log(1 - p_ki))
             }
-            likelihood *= this.priors.get(labelVal)!!
+            likelihood += Math.log(this.priors.get(labelVal)!!)
             if (likelihood > bestProb) {
                 bestProb = likelihood
                 bestLabel = labelVal

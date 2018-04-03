@@ -6,7 +6,7 @@ import Utils.DataContainer
 fun main(args: Array<String>) {
     val dataset = DataContainer("src/main/kotlin/Datasets/spam.txt", false, 0.8)
 
-    val MNB = MultinomialNB()
+    /*val MNB = MultinomialNB()
     MNB.fit(dataset.trainingData, dataset.trainingLabels)
     var accuracy = MNB.test(dataset.testData, dataset.testLabels)
     println(accuracy)
@@ -14,10 +14,10 @@ fun main(args: Array<String>) {
     val GNB = GaussianNB()
     GNB.fit(dataset.trainingData, dataset.trainingLabels)
     accuracy = GNB.test(dataset.testData, dataset.testLabels)
-    println(accuracy)
+    println(accuracy)*/
 
     val BNB = BernoulliNB()
     BNB.fit(dataset.trainingData, dataset.trainingLabels)
-    accuracy = BNB.test(dataset.testData, dataset.testLabels)
+    val accuracy = BNB.test(dataset.testData, dataset.testLabels)
     println(accuracy)
 }
