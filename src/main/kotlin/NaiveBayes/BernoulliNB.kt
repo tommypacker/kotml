@@ -22,7 +22,7 @@ class BernoulliNB {
     }
 
     /**
-     * Fit model to given data and labels
+     *  Fit model to given data and labels
      */
     fun fit(data: Array<DataRow>, labels: Array<String>) {
         this.data = data
@@ -35,7 +35,7 @@ class BernoulliNB {
     }
 
     /**
-     * Test our model by making predictions and comparing them to the actual labels
+     *  Test our model by making predictions and comparing them to the actual labels
      */
     fun test(testData: Array<DataRow>, testLabels: Array<String>) : Double {
         val predictions = getPredictions(testData)
@@ -44,7 +44,7 @@ class BernoulliNB {
     }
 
     /**
-     * Make predictions on the test data based on our model
+     *  Make predictions on the test data based on our model
      */
     fun getPredictions(testData: Array<DataRow>) : Array<String> {
         val res = mutableListOf<String>()
@@ -55,9 +55,9 @@ class BernoulliNB {
     }
 
     /**
-     * Trains our model using the Bernouilli naive bayes formula
-     * We need to calculate number of documents/rows that a feature value appears in
-     * For more info: https://en.wikipedia.org/wiki/Naive_Bayes_classifier#Bernoulli_naive_Bayes
+     *  Trains our model using the Bernouilli naive bayes formula
+     *  We need to calculate number of documents/rows that a feature value appears in
+     *  For more info: https://en.wikipedia.org/wiki/Naive_Bayes_classifier#Bernoulli_naive_Bayes
      */
     private fun trainModel() : HashMap<String, HashMap<String, Double>> {
         val res = HashMap<String, HashMap<String, Double>>()
@@ -85,8 +85,8 @@ class BernoulliNB {
     }
 
     /**
-     * Make predictions based on multivariate Bernoulli event model, and take the MAP estimate
-     * The model can be found here: https://en.wikipedia.org/wiki/Naive_Bayes_classifier#Bernoulli_naive_Bayes
+     *  Make prediction of label based on multivariate Bernoulli event model, and take the MAP estimate
+     *  The model can be found here: https://en.wikipedia.org/wiki/Naive_Bayes_classifier#Bernoulli_naive_Bayes
      */
     private fun predict(document: DataRow) : String {
         var bestProb = Int.MIN_VALUE.toDouble()
@@ -112,7 +112,7 @@ class BernoulliNB {
     }
 
     /**
-     * Count number of documents that contain a feature
+     *  Count number of documents that contain a feature
      */
     private fun aggregateOccurrencesPerClass(classData: MutableList<DataRow>) : HashMap<String, Double> {
         val res = HashMap<String, Double>()
@@ -130,7 +130,7 @@ class BernoulliNB {
     }
 
     /**
-     * Separates data into a mapping of class value to datarows belonging to that class
+     *  Separates data into a mapping of class value to datarows belonging to that class
      */
     private fun separateByClass() : HashMap<String, MutableList<DataRow>> {
         val res = HashMap<String, MutableList<DataRow>>()

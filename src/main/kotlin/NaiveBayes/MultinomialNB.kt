@@ -24,7 +24,7 @@ class MultinomialNB (alpha: Double = 1.0){
     }
 
     /**
-     * Fit model to given data and labels
+     *  Fit model to given data and labels
      */
     fun fit(data: Array<DataRow>, labels: Array<String>) {
         this.data = data
@@ -37,7 +37,7 @@ class MultinomialNB (alpha: Double = 1.0){
     }
 
     /**
-     * Test our model by making predictions and comparing them to the actual labels
+     *  Test our model by making predictions and comparing them to the actual labels
      */
     fun test(testData: Array<DataRow>, testLabels: Array<String>) : Double {
         val predictions = getPredictions(testData)
@@ -46,7 +46,7 @@ class MultinomialNB (alpha: Double = 1.0){
     }
 
     /**
-     * Make predictions on the test data based on our model
+     *  Make predictions on the test data based on our model
      */
     fun getPredictions(testData: Array<DataRow>) : Array<String> {
         val res = mutableListOf<String>()
@@ -57,9 +57,9 @@ class MultinomialNB (alpha: Double = 1.0){
     }
 
     /**
-     * Trains our model using the Multinomial naive bayes formula
-     * We need to calculate the probability of a feature in a class based on number of occurences
-     * For more info: https://en.wikipedia.org/wiki/Naive_Bayes_classifier#Multinomial_naive_Bayes
+     *  Trains our model using the Multinomial naive bayes formula
+     *  We need to calculate the probability of a feature in a class based on number of occurences
+     *  For more info: https://en.wikipedia.org/wiki/Naive_Bayes_classifier#Multinomial_naive_Bayes
      */
     private fun trainModel() : HashMap<String, HashMap<String, Double>> {
         val res = HashMap<String, HashMap<String, Double>>()
@@ -92,8 +92,8 @@ class MultinomialNB (alpha: Double = 1.0){
     }
 
     /**
-     * Make predictions based on the multinomial model and take the MAP estimate.
-     * The model can be found here: https://en.wikipedia.org/wiki/Naive_Bayes_classifier#Multinomial_naive_Bayes
+     *  Make predictions based on the multinomial model and take the MAP estimate.
+     *  The model can be found here: https://en.wikipedia.org/wiki/Naive_Bayes_classifier#Multinomial_naive_Bayes
      */
     private fun predict(document: DataRow) : String {
         var bestProb = Int.MIN_VALUE.toDouble()
@@ -116,7 +116,7 @@ class MultinomialNB (alpha: Double = 1.0){
     }
 
     /**
-     * Counts total number of occurrences of a feature in a given class
+     *  Counts total number of occurrences of a feature in a given class
      */
     private fun aggregateCountsPerClass(classData: MutableList<DataRow>) : HashMap<String, Double> {
         val res = HashMap<String, Double>()
@@ -131,7 +131,7 @@ class MultinomialNB (alpha: Double = 1.0){
     }
 
     /**
-     * Separates data into a mapping of class value to datarows belonging to that class
+     *  Separates data into a mapping of class value to datarows belonging to that class
      */
     private fun separateByClass() : HashMap<String, MutableList<DataRow>> {
         val res = HashMap<String, MutableList<DataRow>>()

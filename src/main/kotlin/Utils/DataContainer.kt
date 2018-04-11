@@ -3,6 +3,11 @@ package Utils
 import krangl.DataFrame
 import krangl.readCSV
 
+/**
+ *  This class is used as an abstraction layer to cleanly hold training and testing data.
+ *  It uses krangl to read in csv's from a file, then converts that into an array of Datarows.
+ *  Alternatively, users can pass in an array of Datarows and strings (labels) to use as the data.
+ */
 class DataContainer (filePath: String?, ignoreFirstCol: Boolean, splitRatio: Double,
                      data: Array<DataRow> = emptyArray(), labels: Array<String> = emptyArray()) {
 

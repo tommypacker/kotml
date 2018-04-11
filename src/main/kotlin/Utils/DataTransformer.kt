@@ -9,8 +9,10 @@ typealias Summary = Pair<Double, Double>
 
 class DataTransformer {
     companion object {
+
         /**
-         * Converts a DataFrame into a list of data rows (for features) and strings (labels)
+         *  Converts a DataFrame into a list of data rows (for features) and strings (labels)
+         *  All feature values are converted to doubles, and rows with missing data are dropped
          */
         fun transformDataframe(rawData: DataFrame, data: MutableList<DataRow>, labels: MutableList<String>, ignoreFirstCol: Boolean) {
             val numCols = rawData.ncol
@@ -22,10 +24,7 @@ class DataTransformer {
                 if (ignoreFirstCol) {
                     curRow = curRow.minus(firstColName)
                 }
-
                 var shouldSkipRow = false
-                // Drop rows with missing data
-                // Convert feature fields to doubles
                 for (feature in curRow.minus(labelName).keys) {
                     var value = curRow.get(feature)
                     if (value is String) {
@@ -47,7 +46,8 @@ class DataTransformer {
         }
 
         /**
-         * Split given data into training vs testing
+         *  Split given data into training vs testing based on given split ration
+         *  Will randomly choose which rows to add to the testing set
          */
         fun splitDataset(data: Array<DataRow>, labels: Array<String>, splitRatio: Double) : DataSplits {
             val trainSize = (data.size * splitRatio).toInt()
@@ -75,6 +75,7 @@ class DataTransformer {
             val testData = copyData
             val testLabels = copyLabels
 
+            // Package up data and return
             val trainPair = Pair(trainingData.toTypedArray(), trainDataLabels.toTypedArray())
             val testPair = Pair(testData.toTypedArray(), testLabels.toTypedArray())
             return Pair(trainPair, testPair)
