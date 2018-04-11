@@ -4,8 +4,8 @@ import Utils.DataRow
 import Utils.MathHelper
 
 class BernoulliNB {
-    var data: MutableList<DataRow>
-    var labels: MutableList<String>
+    var data: Array<DataRow>
+    var labels: Array<String>
     var labelSet: HashSet<String>
     var priors: HashMap<String, Double>
     var model: HashMap<String, HashMap<String, Double>>
@@ -13,8 +13,8 @@ class BernoulliNB {
     var distinctFeatures: HashSet<String>
 
     init {
-        this.data = mutableListOf()
-        this.labels = mutableListOf()
+        this.data = arrayOf()
+        this.labels = arrayOf()
         this.labelSet = hashSetOf()
         this.model = hashMapOf()
         this.priors = hashMapOf()
@@ -24,7 +24,7 @@ class BernoulliNB {
     /**
      * Fit model to given data and labels
      */
-    fun fit(data: MutableList<DataRow>, labels: MutableList<String>) {
+    fun fit(data: Array<DataRow>, labels: Array<String>) {
         this.data = data
         this.labels = labels
         for (label in labels) {
@@ -34,15 +34,15 @@ class BernoulliNB {
         this.model = trainModel()
     }
 
-    fun getPredictions(testData: MutableList<DataRow>) : MutableList<String> {
+    fun getPredictions(testData: Array<DataRow>) : Array<String> {
         val res = mutableListOf<String>()
         for (row in testData) {
             res.add(predict(row))
         }
-        return res
+        return res.toTypedArray()
     }
 
-    fun test(testData: MutableList<DataRow>, testLabels: MutableList<String>) : Double {
+    fun test(testData: Array<DataRow>, testLabels: Array<String>) : Double {
         val predictions = getPredictions(testData)
         val accuracy = MathHelper.getAccuracy(testLabels, predictions)
         return accuracy

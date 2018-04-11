@@ -6,15 +6,15 @@ import Utils.Summary
 
 class GaussianNB() {
 
-    var data: MutableList<DataRow>
-    var labels: MutableList<String>
+    var data: Array<DataRow>
+    var labels: Array<String>
     var model: HashMap<String, HashMap<String, Summary>>
     var priors: HashMap<String, Double>
     var totalRows: Int = 0
 
     init {
-        this.data = mutableListOf()
-        this.labels = mutableListOf()
+        this.data = arrayOf()
+        this.labels = arrayOf()
         this.priors = HashMap()
         this.model = HashMap()
     }
@@ -22,27 +22,27 @@ class GaussianNB() {
     /**
      * Fit model to given data and labels
      */
-    fun fit(data: MutableList<DataRow>, labels: MutableList<String>) {
+    fun fit(data: Array<DataRow>, labels: Array<String>) {
         this.data = data
         this.labels = labels
         this.totalRows = data.size
         this.model = trainModel()
     }
 
-    fun test(testData: MutableList<DataRow>, testLabels: MutableList<String>) : Double {
+    fun test(testData: Array<DataRow>, testLabels: Array<String>) : Double {
         val predictions = getPredictions(testData)
         val accuracy = MathHelper.getAccuracy(testLabels, predictions)
         return accuracy
     }
 
-    fun getPredictions(testData: MutableList<DataRow>) : MutableList<String> {
+    fun getPredictions(testData: Array<DataRow>) : Array<String> {
         val res = mutableListOf<String>()
         val numRows = testData.size
         for (i in 0..numRows-1) {
             val prediction = predict(testData.get(i))
             res.add(prediction)
         }
-        return res
+        return res.toTypedArray()
     }
 
     private fun trainModel() : HashMap<String, HashMap<String, Summary>> {

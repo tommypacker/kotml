@@ -4,7 +4,7 @@ import krangl.DataFrame
 import java.util.*
 
 typealias DataRow = Map<String, Any?>
-typealias DataSplits = Pair<Pair<MutableList<DataRow>, MutableList<String>>, Pair<MutableList<DataRow>, MutableList<String>>>
+typealias DataSplits = Pair<Pair<Array<DataRow>, Array<String>>, Pair<Array<DataRow>, Array<String>>>
 typealias Summary = Pair<Double, Double>
 
 class DataTransformer {
@@ -49,7 +49,7 @@ class DataTransformer {
         /**
          * Split given data into training vs testing
          */
-        fun splitDataset(data: MutableList<DataRow>, labels: MutableList<String>, splitRatio: Double) : DataSplits {
+        fun splitDataset(data: Array<DataRow>, labels: Array<String>, splitRatio: Double) : DataSplits {
             val trainSize = (data.size * splitRatio).toInt()
             val trainingData = mutableListOf<DataRow>()
             val trainDataLabels = mutableListOf<String>()
@@ -75,11 +75,15 @@ class DataTransformer {
             val testData = copyData
             val testLabels = copyLabels
 
-            val trainPair = Pair(trainingData, trainDataLabels)
-            val testPair = Pair(testData, testLabels)
+            val trainPair = Pair(trainingData.toTypedArray(), trainDataLabels.toTypedArray())
+            val testPair = Pair(testData.toTypedArray(), testLabels.toTypedArray())
             return Pair(trainPair, testPair)
         }
 
+        /**
+         *  Returns a random integer within a range
+         *  Inspired by https://stackoverflow.com/questions/45685026/how-can-i-get-a-random-number-in-kotlin
+         */
         fun ClosedRange<Int>.random() =
                 Random().nextInt(endInclusive - start) +  start
     }

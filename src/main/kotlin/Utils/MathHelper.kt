@@ -22,7 +22,7 @@ class MathHelper {
             return res
         }
 
-        fun getAccuracy(testLabels: MutableList<String>, predictions: MutableList<String>) : Double {
+        fun getAccuracy(testLabels: Array<String>, predictions: Array<String>) : Double {
             var correct = 0
             val numRows = testLabels.size
             for (i in 0..numRows-1) {

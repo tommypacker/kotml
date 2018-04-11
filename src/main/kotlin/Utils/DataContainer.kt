@@ -5,18 +5,20 @@ import krangl.readCSV
 
 class DataContainer (filePath: String, ignoreFirstCol: Boolean, splitRatio: Double) {
 
-    val data: MutableList<DataRow>
-    val labels: MutableList<String>
-    val trainingData: MutableList<DataRow>
-    val trainingLabels: MutableList<String>
-    val testData: MutableList<DataRow>
-    val testLabels: MutableList<String>
+    val data: Array<DataRow>
+    val labels: Array<String>
+    val trainingData: Array<DataRow>
+    val trainingLabels: Array<String>
+    val testData: Array<DataRow>
+    val testLabels: Array<String>
 
     init {
         val dataset = DataFrame.readCSV(filePath)
-        this.data = mutableListOf()
-        this.labels = mutableListOf()
-        DataTransformer.transformDataframe(dataset, data, labels, ignoreFirstCol)
+        val tempData = mutableListOf<DataRow>()
+        val tempLabels = mutableListOf<String>()
+        DataTransformer.transformDataframe(dataset, tempData, tempLabels, ignoreFirstCol)
+        this.data = tempData.toTypedArray()
+        this.labels = tempLabels.toTypedArray()
 
         val splits = DataTransformer.splitDataset(data, labels, splitRatio)
         this.trainingData = splits.first.first
