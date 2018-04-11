@@ -36,6 +36,18 @@ class MultinomialNB (alpha: Double = 1.0){
         this.model = trainModel()
     }
 
+    /**
+     * Test our model by making predictions and comparing them to the actual labels
+     */
+    fun test(testData: Array<DataRow>, testLabels: Array<String>) : Double {
+        val predictions = getPredictions(testData)
+        val accuracy = MathHelper.getAccuracy(testLabels, predictions)
+        return accuracy
+    }
+
+    /**
+     * Make predictions on the test data based on our model
+     */
     fun getPredictions(testData: Array<DataRow>) : Array<String> {
         val res = mutableListOf<String>()
         for (row in testData) {
@@ -44,12 +56,11 @@ class MultinomialNB (alpha: Double = 1.0){
         return res.toTypedArray()
     }
 
-    fun test(testData: Array<DataRow>, testLabels: Array<String>) : Double {
-        val predictions = getPredictions(testData)
-        val accuracy = MathHelper.getAccuracy(testLabels, predictions)
-        return accuracy
-    }
-
+    /**
+     * Trains our model using the Multinomial naive bayes formula
+     * We need to calculate the probability of a feature in a class based on number of occurences
+     * For more info: https://en.wikipedia.org/wiki/Naive_Bayes_classifier#Multinomial_naive_Bayes
+     */
     private fun trainModel() : HashMap<String, HashMap<String, Double>> {
         val res = HashMap<String, HashMap<String, Double>>()
         val sepClassData = separateByClass()
@@ -80,6 +91,10 @@ class MultinomialNB (alpha: Double = 1.0){
         return res
     }
 
+    /**
+     * Make predictions based on the multinomial model and take the MAP estimate.
+     * The model can be found here: https://en.wikipedia.org/wiki/Naive_Bayes_classifier#Multinomial_naive_Bayes
+     */
     private fun predict(document: DataRow) : String {
         var bestProb = Int.MIN_VALUE.toDouble()
         var bestLabel = ""
@@ -122,11 +137,11 @@ class MultinomialNB (alpha: Double = 1.0){
         val res = HashMap<String, MutableList<DataRow>>()
         for (i in 0..this.data.size-1) {
             val row = this.data.get(i)
-            val labelVal = this.labels.get(i)
-            if (!res.containsKey(labelVal)) {
-                res.put(labelVal, mutableListOf())
+            val classVal = this.labels.get(i)
+            if (!res.containsKey(classVal)) {
+                res.put(classVal, mutableListOf())
             }
-            res.get(labelVal)?.add(row)
+            res.get(classVal)?.add(row)
         }
         return res
     }

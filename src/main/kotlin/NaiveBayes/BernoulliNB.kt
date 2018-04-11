@@ -34,6 +34,18 @@ class BernoulliNB {
         this.model = trainModel()
     }
 
+    /**
+     * Test our model by making predictions and comparing them to the actual labels
+     */
+    fun test(testData: Array<DataRow>, testLabels: Array<String>) : Double {
+        val predictions = getPredictions(testData)
+        val accuracy = MathHelper.getAccuracy(testLabels, predictions)
+        return accuracy
+    }
+
+    /**
+     * Make predictions on the test data based on our model
+     */
     fun getPredictions(testData: Array<DataRow>) : Array<String> {
         val res = mutableListOf<String>()
         for (row in testData) {
@@ -42,19 +54,18 @@ class BernoulliNB {
         return res.toTypedArray()
     }
 
-    fun test(testData: Array<DataRow>, testLabels: Array<String>) : Double {
-        val predictions = getPredictions(testData)
-        val accuracy = MathHelper.getAccuracy(testLabels, predictions)
-        return accuracy
-    }
-
+    /**
+     * Trains our model using the Bernouilli naive bayes formula
+     * We need to calculate number of documents/rows that a feature value appears in
+     * For more info: https://en.wikipedia.org/wiki/Naive_Bayes_classifier#Bernoulli_naive_Bayes
+     */
     private fun trainModel() : HashMap<String, HashMap<String, Double>> {
         val res = HashMap<String, HashMap<String, Double>>()
-        val sepClassData = separateByLabels()
+        val classSeparatedData = separateByClass()
 
-        for (classVal in sepClassData.keys) {
+        for (classVal in classSeparatedData.keys) {
             // Get all docs for a class
-            val classData = sepClassData.get(classVal)
+            val classData = classSeparatedData.get(classVal)
 
             // Calculate Priors
             this.priors.put(classVal, classData!!.size.toDouble()/this.numRows)
@@ -73,6 +84,10 @@ class BernoulliNB {
         return res
     }
 
+    /**
+     * Make predictions based on multivariate Bernoulli event model, and take the MAP estimate
+     * The model can be found here: https://en.wikipedia.org/wiki/Naive_Bayes_classifier#Bernoulli_naive_Bayes
+     */
     private fun predict(document: DataRow) : String {
         var bestProb = Int.MIN_VALUE.toDouble()
         var bestLabel = ""
@@ -117,15 +132,15 @@ class BernoulliNB {
     /**
      * Separates data into a mapping of class value to datarows belonging to that class
      */
-    private fun separateByLabels() : HashMap<String, MutableList<DataRow>> {
+    private fun separateByClass() : HashMap<String, MutableList<DataRow>> {
         val res = HashMap<String, MutableList<DataRow>>()
         for (i in 0..this.data.size-1) {
             val row = this.data.get(i)
-            val labelVal = this.labels.get(i)
-            if (!res.containsKey(labelVal)) {
-                res.put(labelVal, mutableListOf())
+            val classVal = this.labels.get(i)
+            if (!res.containsKey(classVal)) {
+                res.put(classVal, mutableListOf())
             }
-            res.get(labelVal)?.add(row)
+            res.get(classVal)?.add(row)
         }
         return res
     }

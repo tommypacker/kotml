@@ -3,7 +3,8 @@ package Utils
 import krangl.DataFrame
 import krangl.readCSV
 
-class DataContainer (filePath: String, ignoreFirstCol: Boolean, splitRatio: Double) {
+class DataContainer (filePath: String?, ignoreFirstCol: Boolean, splitRatio: Double,
+                     data: Array<DataRow> = emptyArray(), labels: Array<String> = emptyArray()) {
 
     val data: Array<DataRow>
     val labels: Array<String>
@@ -13,13 +14,17 @@ class DataContainer (filePath: String, ignoreFirstCol: Boolean, splitRatio: Doub
     val testLabels: Array<String>
 
     init {
-        val dataset = DataFrame.readCSV(filePath)
-        val tempData = mutableListOf<DataRow>()
-        val tempLabels = mutableListOf<String>()
-        DataTransformer.transformDataframe(dataset, tempData, tempLabels, ignoreFirstCol)
-        this.data = tempData.toTypedArray()
-        this.labels = tempLabels.toTypedArray()
-
+        if (filePath != null) {
+            val dataset = DataFrame.readCSV(filePath)
+            val tempData = mutableListOf<DataRow>()
+            val tempLabels = mutableListOf<String>()
+            DataTransformer.transformDataframe(dataset, tempData, tempLabels, ignoreFirstCol)
+            this.data = tempData.toTypedArray()
+            this.labels = tempLabels.toTypedArray()
+        } else {
+            this.data = data
+            this.labels = labels
+        }
         val splits = DataTransformer.splitDataset(data, labels, splitRatio)
         this.trainingData = splits.first.first
         this.trainingLabels = splits.first.second

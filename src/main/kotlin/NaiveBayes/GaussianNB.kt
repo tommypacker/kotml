@@ -29,12 +29,18 @@ class GaussianNB() {
         this.model = trainModel()
     }
 
+    /**
+     * Test our model by making predictions and comparing them to the actual labels
+     */
     fun test(testData: Array<DataRow>, testLabels: Array<String>) : Double {
         val predictions = getPredictions(testData)
         val accuracy = MathHelper.getAccuracy(testLabels, predictions)
         return accuracy
     }
 
+    /**
+     * Make predictions on the test data based on our model
+     */
     fun getPredictions(testData: Array<DataRow>) : Array<String> {
         val res = mutableListOf<String>()
         val numRows = testData.size
@@ -45,29 +51,34 @@ class GaussianNB() {
         return res.toTypedArray()
     }
 
+    /**
+     * Train our Gaussian NB model by calculating summaries for each class in our dataset
+     * Each summary consists of the mean and stdev of a feature for a given class
+     * More info on the model can be found here: https://en.wikipedia.org/wiki/Naive_Bayes_classifier#Gaussian_naive_Bayes
+     */
     private fun trainModel() : HashMap<String, HashMap<String, Summary>> {
         val res = HashMap<String, HashMap<String, Summary>>()
-        val labelSepData = separateByClass()
+        val classSeparatedData = separateByClass()
 
         // Calculate Priors
-        for (labelVal in labelSepData.keys) {
-            val classCount = labelSepData.get(labelVal)!!.size
-            this.priors.put(labelVal, classCount.toDouble()/this.totalRows)
+        for (classVal in classSeparatedData.keys) {
+            val classCount = classSeparatedData.get(classVal)!!.size
+            this.priors.put(classVal, classCount.toDouble() / this.totalRows)
         }
 
         // Iterate through each label value
-        for (labelVal in labelSepData.keys) {
-            val labelSummary = HashMap<String, Summary>()
-            val labelValRows = labelSepData.get(labelVal)
+        for (classVal in classSeparatedData.keys) {
+            val classSummary = HashMap<String, Summary>()
+            val dataForClass = classSeparatedData.get(classVal)
 
             // Mapping of feature to values
-            val featureMap = separateFeatures(labelValRows!!)
+            val featureMap = separateFeatures(dataForClass!!)
             val summaryMap = summarizeFeatures(featureMap)
             for (feature in summaryMap.keys) {
                 //println("Summary for " + labelVal + "." + feature + ": " + summaryMap.get(feature))
-                labelSummary.put(feature, summaryMap.get(feature)!!)
+                classSummary.put(feature, summaryMap.get(feature)!!)
             }
-            res.put(labelVal, labelSummary)
+            res.put(classVal, classSummary)
         }
 
         return res
@@ -132,9 +143,9 @@ class GaussianNB() {
         val res = HashMap<String, Double>()
         for (classVal in summaries.keys) {
             var classProbability = 0.0
-            val labelFeatureSummary = summaries.get(classVal)
-            for (featureName in labelFeatureSummary!!.keys) {
-                val summary = labelFeatureSummary.get(featureName)
+            val featureSummary = summaries.get(classVal)
+            for (featureName in featureSummary!!.keys) {
+                val summary = featureSummary.get(featureName)
                 val mean = summary!!.first
                 val stdev = summary.second
                 val x = inputVector.get(featureName) as Double
@@ -154,11 +165,11 @@ class GaussianNB() {
         val probabilties = calculateClassProbabilities(this.model, inputVector)
         var bestLabel = ""
         var bestProb = Int.MIN_VALUE.toDouble()
-        for (labelName in probabilties.keys) {
-            val curProb = probabilties.get(labelName)
+        for (className in probabilties.keys) {
+            val curProb = probabilties.get(className)
             if (curProb!! > bestProb) {
                 bestProb = curProb
-                bestLabel = labelName
+                bestLabel = className
             }
         }
         return bestLabel
