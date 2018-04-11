@@ -30,7 +30,7 @@ class DataContainer (filePath: String?, ignoreFirstCol: Boolean, splitRatio: Dou
             this.data = data
             this.labels = labels
         }
-        val splits = DataTransformer.splitDataset(data, labels, splitRatio)
+        val splits = DataTransformer.splitDataset(this.data, this.labels, splitRatio)
         this.trainingData = splits.first.first
         this.trainingLabels = splits.first.second
         this.testData = splits.second.first

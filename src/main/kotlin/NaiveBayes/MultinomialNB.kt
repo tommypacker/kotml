@@ -65,7 +65,9 @@ class MultinomialNB (alpha: Double = 1.0){
         val res = HashMap<String, HashMap<String, Double>>()
         val sepClassData = separateByClass()
 
-        val n = this.data.get(0).keys.size
+        // n = number of feature columns
+        val n = this.data[0].keys.size
+
         for (classVal in sepClassData.keys) {
             // Get all docs for a class
             val classData = sepClassData.get(classVal)
@@ -73,7 +75,7 @@ class MultinomialNB (alpha: Double = 1.0){
             // Calculate Priors
             this.priors.put(classVal, classData!!.size.toDouble()/this.numRows)
 
-            // Aggregate feature counts per class
+            // Aggregate feature counts per class and total number of feature counts
             val aggregatedData = aggregateCountsPerClass(classData)
             val classProbabilties = HashMap<String, Double>()
             var totalNumfeatures = 0.0
