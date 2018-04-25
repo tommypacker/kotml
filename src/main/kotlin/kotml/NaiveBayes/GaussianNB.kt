@@ -86,6 +86,7 @@ class GaussianNB() {
 
     /**
      *  Separates data into a mapping of class value to datarows belonging to that class
+     *  Group all the test data rows with a given label into their own lists
      */
     private fun separateByClass() : HashMap<String, MutableList<DataRow>> {
         val res = HashMap<String, MutableList<DataRow>>()
@@ -101,7 +102,7 @@ class GaussianNB() {
     }
 
     /**
-     *  Returns a list of each feature column mapped to a list of its values
+     *  Returns a mapping of a feature name to all of the values of that feature in the test data per class
      */
     private fun separateFeatures(dataCols: MutableList<DataRow>) : HashMap<String, DoubleArray> {
         val featureMap = HashMap<String, DoubleArray>()
