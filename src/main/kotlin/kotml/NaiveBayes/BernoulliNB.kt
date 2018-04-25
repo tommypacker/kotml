@@ -1,7 +1,7 @@
-package NaiveBayes
+package kotml.NaiveBayes
 
-import Utils.DataRow
-import Utils.MathHelper
+import kotml.Utils.DataRow
+import kotml.Utils.MathHelper
 
 class BernoulliNB {
     var data: Array<DataRow>

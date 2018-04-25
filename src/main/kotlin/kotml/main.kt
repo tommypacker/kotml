@@ -1,10 +1,12 @@
-import NaiveBayes.BernoulliNB
-import NaiveBayes.GaussianNB
-import NaiveBayes.MultinomialNB
-import Utils.DataContainer
+package kotml
+
+import kotml.NaiveBayes.BernoulliNB
+import kotml.NaiveBayes.GaussianNB
+import kotml.NaiveBayes.MultinomialNB
+import kotml.Utils.DataContainer
 
 fun main(args: Array<String>) {
-    val dataset = DataContainer("src/main/kotlin/Datasets/spam.txt", false, 0.8)
+    val dataset = DataContainer("src/main/kotlin/kotml/Datasets/spam.txt", false, 0.8)
 
     val MNB = MultinomialNB()
     MNB.fit(dataset.trainingData, dataset.trainingLabels)

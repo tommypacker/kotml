@@ -1,8 +1,8 @@
-package NaiveBayes
+package kotml.NaiveBayes
 
-import Utils.DataRow
-import Utils.MathHelper
-import Utils.Summary
+import kotml.Utils.DataRow
+import kotml.Utils.MathHelper
+import kotml.Utils.Summary
 
 class GaussianNB() {
 
@@ -139,7 +139,7 @@ class GaussianNB() {
      *  where x is the feature value and classVal is the given class
      */
     private fun calculateClassProbabilities(summaries: HashMap<String, HashMap<String, Summary>>,
-                                    inputVector: DataRow) : HashMap<String, Double> {
+                                            inputVector: DataRow) : HashMap<String, Double> {
         val res = HashMap<String, Double>()
         for (classVal in summaries.keys) {
             var classProbability = 0.0

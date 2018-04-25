@@ -1,7 +1,7 @@
-package NaiveBayes
+package kotml.NaiveBayes
 
-import Utils.DataRow
-import Utils.MathHelper
+import kotml.Utils.DataRow
+import kotml.Utils.MathHelper
 
 class MultinomialNB (alpha: Double = 1.0){
     var data: Array<DataRow>
@@ -83,7 +83,7 @@ class MultinomialNB (alpha: Double = 1.0){
                 totalNumfeatures += aggregatedData.get(featureName)!!
             }
 
-            // Calculate feature probabilities conditioned on given class
+            // Calculate feature probabilities conditioned on given class: p(w_i|class)
             for (featureName in aggregatedData.keys) {
                 // Use LaPlace smoothing when calculating theta values
                 classProbabilties.put(featureName, (aggregatedData.get(featureName)!!.toDouble() + alpha) / (totalNumfeatures + (alpha * n)))
