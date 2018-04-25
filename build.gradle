@@ -1,5 +1,6 @@
 buildscript {
     ext.kotlin_version = '1.2.31'
+    ext.dokka_version = '0.9.16'
 
     repositories {
         mavenCentral()
@@ -7,12 +8,23 @@ buildscript {
     }
     dependencies {
         classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version"
+        classpath "org.jetbrains.dokka:dokka-gradle-plugin:${dokka_version}"
+        classpath 'com.jfrog.bintray.gradle:gradle-bintray-plugin:1.7.3'
     }
 }
 
-version '1.0-SNAPSHOT'
+//plugins {
+//    id "com.jfrog.bintray" version "1.7.3"
+//}
 
 apply plugin: 'kotlin'
+apply plugin: 'org.jetbrains.dokka'
+apply plugin: 'maven-publish'
+apply from: 'keystore.gradle'
+apply plugin: 'com.jfrog.bintray'
+
+version '0.1-ALPHA'
+group 'com.tommypacker'
 
 repositories {
     mavenCentral()
@@ -21,7 +33,7 @@ repositories {
 
 dependencies {
     implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk8:$kotlin_version"
-    compile "de.mpicbg.scicomp:krangl:0.8"
+    implementation "de.mpicbg.scicomp:krangl:0.9"
 }
 
 compileKotlin {
@@ -29,4 +41,90 @@ compileKotlin {
 }
 compileTestKotlin {
     kotlinOptions.jvmTarget = "1.8"
+}
+
+dokka {
+    outputFormat = 'html'
+    outputDirectory = "$buildDir/javadoc"
+}
+
+bintray {
+    user = 'tommypacker'
+    key = bintray_key
+    publish = true
+    override = true
+    publications = ['maven']
+    pkg {
+        repo = 'kotml'
+        name = 'kotml'
+
+        licenses = ['MIT']
+        vcsUrl = 'https://github.com/tommypacker/kotml'
+
+        version {
+            name = project.version
+            released = new Date()
+            vcsTag = "v${project.version}"
+        }
+    }
+}
+
+task sourcesJar(type: Jar, dependsOn: project.classes) {
+    classifier = 'sources'
+    from sourceSets.main.allSource
+}
+
+task javadocJar(type: Jar, dependsOn: project.javadoc) {
+    classifier = 'javadoc'
+    from javadoc.destinationDir
+}
+
+artifacts {
+    archives sourcesJar, javadocJar
+}
+
+def pomConfig = {
+    licenses {
+        license {
+            name "MIT License"
+            url "https://opensource.org/licenses/MIT"
+            distribution "repo"
+        }
+    }
+    developers {
+        developer {
+            id "tommypacker"
+            name "Thomas Yu"
+            email "tommypacker@gmail.com"
+        }
+    }
+
+    scm {
+        url "https://github.com/tommypacker/kotml"
+    }
+}
+
+
+publishing {
+    publications {
+        maven(MavenPublication) {
+            from components.java
+            artifact sourcesJar {
+                classifier 'sources'
+            }
+            artifact javadocJar {
+                classifier 'javadoc'
+            }
+            version = project.version
+            artifactId = 'kotml'
+            groupId = project.group
+            pom.withXml {
+                def root = asNode()
+                root.appendNode('description', 'Machine Learning library written in Kotlin')
+                root.appendNode('name', 'kotml')
+                root.appendNode('url', 'https://github.com/tommypacker/kotml')
+                root.children().last() + pomConfig
+            }
+        }
+    }
 }
