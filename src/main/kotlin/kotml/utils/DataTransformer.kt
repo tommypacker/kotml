@@ -1,7 +1,6 @@
 package kotml.utils
 
 import krangl.DataFrame
-import java.util.*
 
 typealias DataRow = Map<String, Any?>
 typealias DataSplits = Pair<Pair<Array<DataRow>, Array<String>>, Pair<Array<DataRow>, Array<String>>>
@@ -9,7 +8,6 @@ typealias Summary = Pair<Double, Double>
 
 class DataTransformer {
     companion object {
-
         /**
          *  Converts a DataFrame into a list of data rows (for features) and strings (labels)
          *  All feature values are converted to doubles, and rows with missing data are dropped
@@ -55,37 +53,20 @@ class DataTransformer {
             val trainDataLabels = mutableListOf<String>()
 
             // Copy Data
-            val copyData = mutableListOf<DataRow>()
-            val copyLabels = mutableListOf<String>()
-            for (i in 0..data.size-1) {
-                copyData.add(data.get(i))
-                copyLabels.add(labels.get(i))
-            }
+            val testData = data.toMutableList()
+            val testLabels = labels.toMutableList()
 
             // Add to training data
             while (trainingData.size < trainSize) {
-                val index = (0..copyData.size).random()
-                trainingData.add(copyData.get(index))
-                trainDataLabels.add(copyLabels.get(index))
-                copyData.removeAt(index)
-                copyLabels.removeAt(index)
+                val index = (0..testData.size).random()
+                trainingData.add(testData.removeAt(index))
+                trainDataLabels.add(testLabels.removeAt(index))
             }
-
-            // Test data is the leftover data not used for training
-            val testData = copyData
-            val testLabels = copyLabels
 
             // Package up data and return
             val trainPair = Pair(trainingData.toTypedArray(), trainDataLabels.toTypedArray())
             val testPair = Pair(testData.toTypedArray(), testLabels.toTypedArray())
             return Pair(trainPair, testPair)
         }
-
-        /**
-         *  Returns a random integer within a range
-         *  Inspired by https://stackoverflow.com/questions/45685026/how-can-i-get-a-random-number-in-kotlin
-         */
-        fun ClosedRange<Int>.random() =
-                Random().nextInt(endInclusive - start) +  start
     }
 }

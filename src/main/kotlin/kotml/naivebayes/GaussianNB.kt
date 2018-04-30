@@ -2,6 +2,7 @@ package kotml.naivebayes
 
 import kotml.utils.DataRow
 import kotml.utils.MathHelper
+import kotml.utils.stdev
 import kotml.utils.Summary
 
 class GaussianNB() {
@@ -122,7 +123,7 @@ class GaussianNB() {
         for (featureName in features.keys) {
             val featureVals = features.get(featureName)
             if (featureVals != null) {
-                summaries.put(featureName, Pair(featureVals.average(), MathHelper.stdev(featureVals)))
+                summaries.put(featureName, Pair(featureVals.average(), featureVals.stdev()))
             }
         }
         return summaries
