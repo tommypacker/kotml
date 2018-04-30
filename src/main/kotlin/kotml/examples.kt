@@ -6,7 +6,7 @@ import kotml.NaiveBayes.MultinomialNB
 import kotml.Utils.DataContainer
 
 fun main(args: Array<String>) {
-    val dataset = DataContainer("src/main/kotlin/kotml/Datasets/spam.txt", false, 0.8)
+    val dataset = DataContainer("src/main/kotlin/kotml/datasets/iris.csv", false, 0.8)
 
     val MNB = MultinomialNB()
     MNB.fit(dataset.trainingData, dataset.trainingLabels)

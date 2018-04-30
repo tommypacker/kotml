@@ -4,6 +4,12 @@ kotml is aiming to be a machine learning library written purely in Kotlin. I am 
 to provide an interface similar to sklearn's classifiers. 
 The motivation behind this project was to learn Kotlin and brush up on my ML knowledge.
 
+[TOC levels=2,2]: # " "
+
+- [Installation](#installation)
+- [Features](#features)
+- [Examples](#examples)
+
 Installation
 --------
 To get started, include `jcenter()` in your build gradle repositories.
@@ -53,6 +59,7 @@ BNB.fit(spamData.trainingData, spamData.trainingLabels)
 val accuracy = BNB.test(spamData.testData, spamData.testLabels)
 println(accuracy)
 ```
+More examples can be found in `examples.kt`
 
 References
 ----------
@@ -62,3 +69,4 @@ APIs used in this project:
 Guides to help me get started:
 * https://en.wikipedia.org/wiki/Naive_Bayes_classifier
 * http://scikit-learn.org/stable/modules/naive_bayes.html
+* https://archive.ics.uci.edu/ml/datasets.html
