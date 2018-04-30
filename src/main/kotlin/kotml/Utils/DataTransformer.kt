@@ -71,7 +71,7 @@ class DataTransformer {
                 copyLabels.removeAt(index)
             }
 
-            // Test data is the leftovers
+            // Test data is the leftover data not used for training
             val testData = copyData
             val testLabels = copyLabels
 

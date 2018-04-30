@@ -50,7 +50,7 @@ val BNB = BernoulliNB()
 BNB.fit(spamData.trainingData, spamData.trainingLabels)
 
 // Test model and print accuracy
-accuracy = BNB.test(spamData.testData, spamData.testLabels)
+val accuracy = BNB.test(spamData.testData, spamData.testLabels)
 println(accuracy)
 ```
 
