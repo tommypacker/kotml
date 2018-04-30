@@ -1,25 +1,15 @@
-package kotml.NaiveBayes
+package kotml.naivebayes
 
-import kotml.Utils.DataRow
-import kotml.Utils.MathHelper
+import kotml.utils.DataRow
+import kotml.utils.MathHelper
 
 class BernoulliNB {
-    var data: Array<DataRow>
-    var labels: Array<String>
-    var labelSet: HashSet<String>
-    var priors: HashMap<String, Double>
-    var model: HashMap<String, HashMap<String, Double>>
-    var numRows: Int = 0
-    var distinctFeatures: HashSet<String>
-
-    init {
-        this.data = arrayOf()
-        this.labels = arrayOf()
-        this.labelSet = hashSetOf()
-        this.model = hashMapOf()
-        this.priors = hashMapOf()
-        this.distinctFeatures = hashSetOf()
-    }
+    var data = arrayOf<DataRow>()
+    var labels =  arrayOf<String>()
+    var labelSet = setOf<String>()
+    var priors = hashMapOf<String, Double>()
+    var model = mapOf<String, Map<String, Double>>()
+    var numRows = 0
 
     /**
      *  Fit model to given data and labels
@@ -27,9 +17,7 @@ class BernoulliNB {
     fun fit(data: Array<DataRow>, labels: Array<String>) {
         this.data = data
         this.labels = labels
-        for (label in labels) {
-            labelSet.add(label)
-        }
+        this.labelSet = labels.toHashSet()
         this.numRows = data.size
         this.model = trainModel()
     }
@@ -59,8 +47,8 @@ class BernoulliNB {
      *  We need to calculate number of documents/rows that a feature value appears in
      *  For more info: https://en.wikipedia.org/wiki/Naive_Bayes_classifier#Bernoulli_naive_Bayes
      */
-    private fun trainModel() : HashMap<String, HashMap<String, Double>> {
-        val res = HashMap<String, HashMap<String, Double>>()
+    private fun trainModel() : Map<String, Map<String, Double>> {
+        val res = HashMap<String, Map<String, Double>>()
         val classSeparatedData = separateByClass()
 
         for (classVal in classSeparatedData.keys) {
@@ -114,7 +102,7 @@ class BernoulliNB {
     /**
      *  Count number of documents that contain a feature
      */
-    private fun aggregateOccurrencesPerClass(classData: MutableList<DataRow>) : HashMap<String, Double> {
+    private fun aggregateOccurrencesPerClass(classData: MutableList<DataRow>) : Map<String, Double> {
         val res = HashMap<String, Double>()
         for (row in classData) {
             // Go through each document
@@ -123,7 +111,6 @@ class BernoulliNB {
                 var presence =  0.0
                 if (count > 0) presence = 1.0
                 res.put(featureName, res.getOrDefault(featureName, 0.0) + presence)
-                distinctFeatures.add(featureName)
             }
         }
         return res
@@ -132,7 +119,7 @@ class BernoulliNB {
     /**
      *  Separates data into a mapping of class value to datarows belonging to that class
      */
-    private fun separateByClass() : HashMap<String, MutableList<DataRow>> {
+    private fun separateByClass() : Map<String, MutableList<DataRow>> {
         val res = HashMap<String, MutableList<DataRow>>()
         for (i in 0..this.data.size-1) {
             val row = this.data.get(i)

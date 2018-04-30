@@ -1,23 +1,16 @@
-package kotml.NaiveBayes
+package kotml.naivebayes
 
-import kotml.Utils.DataRow
-import kotml.Utils.MathHelper
-import kotml.Utils.Summary
+import kotml.utils.DataRow
+import kotml.utils.MathHelper
+import kotml.utils.Summary
 
 class GaussianNB() {
 
-    var data: Array<DataRow>
-    var labels: Array<String>
-    var model: HashMap<String, HashMap<String, Summary>>
-    var priors: HashMap<String, Double>
-    var totalRows: Int = 0
-
-    init {
-        this.data = arrayOf()
-        this.labels = arrayOf()
-        this.priors = HashMap()
-        this.model = HashMap()
-    }
+    var data = arrayOf<DataRow>()
+    var labels = arrayOf<String>()
+    var model = mapOf<String, Map<String, Summary>>()
+    var priors = hashMapOf<String, Double>()
+    var totalRows = 0
 
     /**
      *  Fit model to given data and labels
@@ -56,8 +49,8 @@ class GaussianNB() {
      *  Each summary consists of the mean and stdev of a feature for a given class
      *  More info on the model can be found here: https://en.wikipedia.org/wiki/Naive_Bayes_classifier#Gaussian_naive_Bayes
      */
-    private fun trainModel() : HashMap<String, HashMap<String, Summary>> {
-        val res = HashMap<String, HashMap<String, Summary>>()
+    private fun trainModel() : Map<String, Map<String, Summary>> {
+        val res = HashMap<String, Map<String, Summary>>()
         val classSeparatedData = separateByClass()
 
         // Calculate Priors
@@ -88,7 +81,7 @@ class GaussianNB() {
      *  Separates data into a mapping of class value to datarows belonging to that class
      *  Group all the test data rows with a given label into their own lists
      */
-    private fun separateByClass() : HashMap<String, MutableList<DataRow>> {
+    private fun separateByClass() : Map<String, MutableList<DataRow>> {
         val res = HashMap<String, MutableList<DataRow>>()
         for (i in 0..this.data.size-1) {
             val row = this.data.get(i)
@@ -104,7 +97,7 @@ class GaussianNB() {
     /**
      *  Returns a mapping of a feature name to all of the values of that feature in the test data per class
      */
-    private fun separateFeatures(dataCols: MutableList<DataRow>) : HashMap<String, DoubleArray> {
+    private fun separateFeatures(dataCols: MutableList<DataRow>) : Map<String, DoubleArray> {
         val featureMap = HashMap<String, DoubleArray>()
         val cols = this.data.get(0).keys
         for (colName in cols) {
@@ -124,7 +117,7 @@ class GaussianNB() {
     /**
      *  Calculate the mean and stdev of list of feature values
      */
-    private fun summarizeFeatures(features: HashMap<String, DoubleArray>) : HashMap<String, Summary> {
+    private fun summarizeFeatures(features: Map<String, DoubleArray>) : Map<String, Summary> {
         val summaries = HashMap<String, Summary>()
         for (featureName in features.keys) {
             val featureVals = features.get(featureName)
@@ -139,8 +132,8 @@ class GaussianNB() {
      *  Calculate P(x|classVal) based on Gaussian Distribution
      *  where x is the feature value and classVal is the given class
      */
-    private fun calculateClassProbabilities(summaries: HashMap<String, HashMap<String, Summary>>,
-                                            inputVector: DataRow) : HashMap<String, Double> {
+    private fun calculateClassProbabilities(summaries: Map<String, Map<String, Summary>>,
+                                            inputVector: DataRow) : Map<String, Double> {
         val res = HashMap<String, Double>()
         for (classVal in summaries.keys) {
             var classProbability = 0.0

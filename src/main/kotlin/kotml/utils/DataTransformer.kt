@@ -1,4 +1,4 @@
-package kotml.Utils
+package kotml.utils
 
 import krangl.DataFrame
 import java.util.*

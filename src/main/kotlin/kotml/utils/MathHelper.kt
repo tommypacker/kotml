@@ -1,4 +1,4 @@
-package kotml.Utils
+package kotml.utils
 
 class MathHelper {
     companion object {
