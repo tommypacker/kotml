@@ -2,7 +2,6 @@ package kotml.naivebayes
 
 import kotml.utils.DataRow
 import kotml.utils.MathHelper
-import kotml.utils.stdev
 import kotml.utils.Summary
 
 class GaussianNB() {
@@ -168,5 +167,15 @@ class GaussianNB() {
             }
         }
         return bestLabel
+    }
+
+    /**
+     *  Extension function that returns the standard deviation of a DoubleArray
+     */
+    fun DoubleArray.stdev(): Double {
+        val avg = this.average()
+        val varianceVals = this.map { i: Double -> Math.pow(i - avg, 2.0) / (this.size - 1) }
+        val variance = varianceVals.sum()
+        return Math.sqrt(variance)
     }
 }

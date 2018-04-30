@@ -1,24 +1,5 @@
 package kotml.utils
 
-import java.util.*
-
-/**
- *  Extension function that returns the standard deviation of a DoubleArray
- */
-fun DoubleArray.stdev(): Double {
-    val avg = this.average()
-    val varianceVals = this.map { i: Double -> Math.pow(i - avg, 2.0) / (this.size - 1) }
-    val variance = varianceVals.sum()
-    return Math.sqrt(variance)
-}
-
-/**
- *  Extension function that returns a random integer within a range
- *  Inspired by https://stackoverflow.com/questions/45685026/how-can-i-get-a-random-number-in-kotlin
- */
-fun ClosedRange<Int>.random() =
-        Random().nextInt(endInclusive - start) +  start
-
 class MathHelper {
     companion object {
 

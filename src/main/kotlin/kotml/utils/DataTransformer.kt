@@ -1,6 +1,7 @@
 package kotml.utils
 
 import krangl.DataFrame
+import java.util.*
 
 typealias DataRow = Map<String, Any?>
 typealias DataSplits = Pair<Pair<Array<DataRow>, Array<String>>, Pair<Array<DataRow>, Array<String>>>
@@ -68,5 +69,12 @@ class DataTransformer {
             val testPair = Pair(testData.toTypedArray(), testLabels.toTypedArray())
             return Pair(trainPair, testPair)
         }
+
+        /**
+         *  Extension function that returns a random integer within a range
+         *  Inspired by https://stackoverflow.com/questions/45685026/how-can-i-get-a-random-number-in-kotlin
+         */
+        fun ClosedRange<Int>.random() =
+                Random().nextInt(endInclusive - start) +  start
     }
 }
