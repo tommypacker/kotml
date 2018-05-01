@@ -50,7 +50,7 @@ kotml current supports three Naive Bayes classifiers: `BernoulliNB()`, `Gaussian
 
 ```kotlin
 // Load Data
-val spamData = Datasets.loadGlass(false, 0.8)
+val spamData = Datasets.loadSpam(false, 0.8)
 
 // Create Classifier
 val BNB = BernoulliNB()
