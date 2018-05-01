@@ -1,13 +1,13 @@
 package kotml
 
+import kotml.datasets.Datasets
 import kotml.knn.KNN
 import kotml.naivebayes.BernoulliNB
 import kotml.naivebayes.GaussianNB
 import kotml.naivebayes.MultinomialNB
-import kotml.utils.DataContainer
 
 fun main(args: Array<String>) {
-    val dataset = DataContainer("src/main/kotlin/kotml/datasets/iris.csv", false, 0.8)
+    val dataset = Datasets.loadGlass()
 
     val MNB = MultinomialNB()
     MNB.fit(dataset.trainingData, dataset.trainingLabels)
