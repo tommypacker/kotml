@@ -35,10 +35,13 @@ Features
     * Gaussian
     * Multinomial
     * Bernoulli
+* K Nearest Neighbors
+    * Non-Weighted
+    * Weighted
 * DataContainer class to easily manipulate data given in CSV form. Splits data automatically
 into testing and training data with a user defined split ratio. Also allows ignoring the first
 column of datasets in case of an ID column.
-* Planned support for many other popular ML models (SVM, KNN, etc).
+* Planned support for many other popular ML models (SVM, Regression, etc).
 
 Examples
 --------

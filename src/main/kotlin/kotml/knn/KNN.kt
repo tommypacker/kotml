@@ -3,7 +3,7 @@ package kotml.knn
 import kotml.utils.DataRow
 import kotml.utils.MathHelper
 
-class KNN (val data: Array<DataRow>, val labels: Array<String>, val k: Int = 1){
+class KNN (val data: Array<DataRow>, val labels: Array<String>, val k: Int = 1, val weighted: Boolean = false){
 
     /**
      *  Test our model by making predictions and comparing them to the actual labels
@@ -41,18 +41,25 @@ class KNN (val data: Array<DataRow>, val labels: Array<String>, val k: Int = 1){
 
         // Sort distances
         distances.sortBy { it.first }
-        val neighbors = distances.slice(0..k-1)
 
-        // Aggregate counts
-        val neighborCounts = hashMapOf<String, Int>()
-        for (neighbor in neighbors) {
-            val neighborLabel = neighbor.second
-            neighborCounts.put(neighborLabel, neighborCounts.getOrDefault(neighborLabel, 0) + 1)
+        // Aggregate neighbor value/counts
+        val neighborCounts = hashMapOf<String, Double>()
+        if (!weighted) {
+            val neighbors = distances.slice(0..k-1)
+            for (neighbor in neighbors) {
+                val neighborLabel = neighbor.second
+                neighborCounts.put(neighborLabel, neighborCounts.getOrDefault(neighborLabel, 0.0) + 1.0)
+            }
+        } else {
+            for (distancePair in distances) {
+                val neighborDistance = 1 / distancePair.first
+                val neighborLabel = distancePair.second
+                neighborCounts.put(neighborLabel, neighborCounts.getOrDefault(neighborLabel, 0.0) + neighborDistance)
+            }
         }
 
-        // Find most common neighbor label
+        // Find most common or highest weighted neighbor label
         val ranks = neighborCounts.toList().sortedBy { (_, value) -> value }.reversed()
-
         return ranks[0].first
     }
 
