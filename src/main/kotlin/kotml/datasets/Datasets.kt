@@ -1,5 +1,6 @@
 package kotml.datasets
 
+import kotml.utils.ContinuousDataContainer
 import kotml.utils.DiscreteDataContainer
 
 private const val DATASETSPATH = "src/main/resources/datasets/"
@@ -20,6 +21,10 @@ class Datasets {
 
         fun loadGlass(ignoreFirstCol: Boolean = false, splitRatio: Double = 0.7) : DiscreteDataContainer {
             return DiscreteDataContainer(DATASETSPATH + "glass.txt", ignoreFirstCol, splitRatio)
+        }
+
+        fun loadRegression(ignoreFirstCol: Boolean = false, splitRatio: Double = 0.7) : ContinuousDataContainer {
+            return ContinuousDataContainer(DATASETSPATH + "regression.csv", lastColLabels = true, splitRatio = 0.9)
         }
     }
 }

@@ -1,24 +1,27 @@
 package kotml.utils
 
+import koma.create
+import koma.eye
+import koma.matrix.Matrix
 import krangl.DataFrame
 import krangl.readCSV
 
 
 /**
- *  This class is used as an abstraction layer to cleanly hold training and testing data.
+ *  This class is used as an abstraction layer to cleanly hold training and testing data for regression problems.
  *  It uses krangl to read in csv's from a file, then converts that into an array of Datarows.
  *  Alternatively, users can pass in an array of Datarows and doubles (labels) to use as the data.
  */
-class ContinuousDataContainer (filePath: String?, ignoreFirstCol: Boolean, splitRatio: Double = 0.7,
+class ContinuousDataContainer (filePath: String?, ignoreFirstCol: Boolean = false, splitRatio: Double = 0.7,
                              data: Array<DataRow> = emptyArray(), labels: Array<Double> = emptyArray(),
                              lastColLabels: Boolean = false) {
 
     val data: Array<DataRow>
     val labels: Array<Double>
-    val trainingData: Array<DataRow>
-    val trainingLabels: Array<Double>
-    val testData: Array<DataRow>
-    val testLabels: Array<Double>
+    var trainingData = eye(1)
+    val trainingLabels: DoubleArray
+    var testData = eye(1)
+    val testLabels: DoubleArray
 
     init {
         if (filePath != null) {
@@ -37,9 +40,9 @@ class ContinuousDataContainer (filePath: String?, ignoreFirstCol: Boolean, split
             this.labels = labels
         }
         val splits = DataTransformer.splitDataset(this.data, this.labels, splitRatio)
-        this.trainingData = splits.first.first
-        this.trainingLabels = splits.first.second.map { it as Double }.toTypedArray()
-        this.testData = splits.second.first
-        this.testLabels = splits.second.second.map { it as Double }.toTypedArray()
+        this.trainingData = create(splits.first.first.map { it.values.map { it as Double }.toDoubleArray() }.toTypedArray())
+        this.trainingLabels = splits.first.second.map { it as Double }.toDoubleArray()
+        this.testData = create(splits.second.first.map { it.values.map { it as Double }.toDoubleArray() }.toTypedArray())
+        this.testLabels = splits.second.second.map { it as Double }.toDoubleArray()
     }
 }

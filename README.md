@@ -38,6 +38,7 @@ Features
 * K Nearest Neighbors
     * Non-Weighted
     * Weighted
+* Linear Regression with gradient descent (currently in alpha)
 * DataContainer class to easily manipulate data given in CSV form. Splits data automatically
 into testing and training data with a user defined split ratio. Also allows ignoring the first
 column of datasets in case of an ID column.
@@ -68,6 +69,7 @@ References
 ----------
 APIs used in this project:
 * [krangl](https://github.com/holgerbrandl/krangl): Used for dataset manipulation
+* [koma](https://github.com/kyonifer/koma): Used for matrix operations
 
 Guides to help me get started:
 * https://en.wikipedia.org/wiki/Naive_Bayes_classifier

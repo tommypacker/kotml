@@ -6,7 +6,7 @@ import kotml.knn.KNN
 import kotml.naivebayes.BernoulliNB
 import kotml.naivebayes.GaussianNB
 import kotml.naivebayes.MultinomialNB
-import kotml.regression.Linear
+import kotml.regression.LinearRegression
 import kotml.utils.ContinuousDataContainer
 
 fun main(args: Array<String>) {
@@ -31,10 +31,8 @@ fun main(args: Array<String>) {
     accuracy = knn.test(dataset.testData, dataset.testLabels)
     println(accuracy)
 
-    val secondDataset = ContinuousDataContainer("src/main/resources/datasets/test2.csv", false, lastColLabels = true, splitRatio = 1.0)
-    val sl = Linear()
-    val test: Array<DoubleArray> = secondDataset.trainingData.map { it.values.map { it as Double }.toDoubleArray() }.toTypedArray()
-    val X = create(test)
-    sl.train(X, secondDataset.trainingLabels.toDoubleArray(), 0.001, 10000)
+    val regressionData = Datasets.loadRegression()
+    val sl = LinearRegression()
+    sl.train(regressionData.trainingData, regressionData.trainingLabels, 0.0005, 100000)
     println(sl.predict(doubleArrayOf(1.0, 70.0)))
 }
