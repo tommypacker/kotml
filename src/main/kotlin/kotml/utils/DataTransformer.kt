@@ -1,10 +1,11 @@
 package kotml.utils
 
+import krangl.DataCol
 import krangl.DataFrame
 import java.util.*
 
 typealias DataRow = Map<String, Any?>
-typealias DataSplits = Pair<Pair<Array<DataRow>, Array<String>>, Pair<Array<DataRow>, Array<String>>>
+typealias DataSplits = Pair<Pair<Array<DataRow>, Array<*>>, Pair<Array<DataRow>, Array<*>>>
 typealias Summary = Pair<Double, Double>
 
 class DataTransformer {
@@ -13,7 +14,7 @@ class DataTransformer {
          *  Converts a DataFrame into a list of data rows (for features) and strings (labels)
          *  All feature values are converted to doubles, and rows with missing data are dropped
          */
-        fun transformDataframe(rawData: DataFrame, data: MutableList<DataRow>, labels: MutableList<String>, ignoreFirstCol: Boolean) {
+        fun transformDataframe(rawData: DataFrame, data: MutableList<DataRow>, labels: MutableList<Any>, ignoreFirstCol: Boolean) {
             val numCols = rawData.ncol
             val firstColName = rawData.cols.get(0).name
             val labelName = rawData.cols.get(numCols-1).name
@@ -39,7 +40,7 @@ class DataTransformer {
                     curRow = curRow.minus(feature).plus(Pair(feature, value))
                 }
                 if (shouldSkipRow) continue
-                labels.add(curRow.get(labelName).toString())
+                labels.add(curRow.get(labelName)!!)
                 data.add(curRow.minus(labelName))
             }
         }
@@ -48,10 +49,10 @@ class DataTransformer {
          *  Split given data into training vs testing based on given split ration
          *  Will randomly choose which rows to add to the testing set
          */
-        fun splitDataset(data: Array<DataRow>, labels: Array<String>, splitRatio: Double) : DataSplits {
+        fun splitDataset(data: Array<DataRow>, labels: Array<*>, splitRatio: Double) : DataSplits {
             val trainSize = (data.size * splitRatio).toInt()
             val trainingData = mutableListOf<DataRow>()
-            val trainDataLabels = mutableListOf<String>()
+            val trainDataLabels = mutableListOf<Any>()
 
             // Copy Data
             val testData = data.toMutableList()
@@ -61,13 +62,23 @@ class DataTransformer {
             while (trainingData.size < trainSize) {
                 val index = (0..testData.size).random()
                 trainingData.add(testData.removeAt(index))
-                trainDataLabels.add(testLabels.removeAt(index))
+                trainDataLabels.add(testLabels.removeAt(index)!!)
             }
 
             // Package up data and return
             val trainPair = Pair(trainingData.toTypedArray(), trainDataLabels.toTypedArray())
             val testPair = Pair(testData.toTypedArray(), testLabels.toTypedArray())
             return Pair(trainPair, testPair)
+        }
+
+        /**
+         *  Removes and returns the last column in a dataframe
+         */
+        fun extractLastColumn(data: DataFrame): DataCol {
+            val lastColName = data.get(data.ncol - 1).name
+            val lastCol = data.get(lastColName)
+            data.remove(lastColName)
+            return lastCol
         }
 
         /**
