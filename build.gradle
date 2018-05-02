@@ -29,11 +29,17 @@ group 'com.tommypacker'
 repositories {
     mavenCentral()
     jcenter()
+    maven {
+        url "http://dl.bintray.com/kyonifer/maven"
+        jcenter()
+    }
 }
 
 dependencies {
     implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk8:$kotlin_version"
     implementation "de.mpicbg.scicomp:krangl:0.9"
+    implementation group: "koma", name:"core", version:"0.11"
+    implementation group: "koma", name:"backend-matrix-ejml", version: "0.11"
 }
 
 compileKotlin {
