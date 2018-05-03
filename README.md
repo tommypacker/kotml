@@ -46,8 +46,8 @@ column of datasets in case of an ID column.
 
 Examples
 --------
-kotml current supports three Naive Bayes classifiers: `BernoulliNB()`, `GaussianNB()`,
-`MultinomialNB()`.
+kotml currently supports three Naive Bayes classifiers(`BernoulliNB()`, `GaussianNB()`,
+`MultinomialNB()`), K Nearest Neighbors (`KNN()`), and LinearRegression (`LinearRegression()`).
 
 ```kotlin
 // Load Data
