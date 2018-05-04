@@ -45,7 +45,7 @@ class LinearRegression {
         val N = X.numRows()
         val hypothesis = X * theta
         val loss = hypothesis - y.transpose()
-        costs.add(calculateCost(X, y))
+        costs.add(calculateCost(loss))
 
         val gradient = (X.transpose() * loss).map { it / N * learningRate }
         theta = theta - gradient
@@ -54,11 +54,8 @@ class LinearRegression {
     /**
      *  Find the current cost of our model using MSE
      */
-    fun calculateCost(X: Matrix<Double>, y: Matrix<Double>): Double {
-        val N = X.numRows()
-        val hypothesis = X * theta
-        val loss = hypothesis - y.transpose()
-        val cost = loss.map { Math.pow(it, 2.0) }.elementSum() / N
+    fun calculateCost(loss: Matrix<Double>): Double {
+        val cost = loss.map { Math.pow(it, 2.0) }.elementSum() / (loss.numRows())
         return cost
     }
 
