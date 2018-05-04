@@ -1,14 +1,14 @@
 package kotml.regression
 
 import koma.create
-import koma.extensions.get
 import koma.extensions.map
 import koma.eye
 import koma.matrix.Matrix
 import koma.ones
 import koma.zeros
 
-class LinearRegression {
+class LogisticRegression {
+
     /**
      *  Implemented from https://stackoverflow.com/questions/17784587/gradient-descent-using-python-and-numpy
      */
@@ -43,7 +43,7 @@ class LinearRegression {
      */
     fun updateWeights(X: Matrix<Double>, y: Matrix<Double>, learningRate: Double) {
         val N = X.numRows()
-        val hypothesis = X * theta
+        val hypothesis = (X * theta).map { sigmoid(it) }
         val loss = hypothesis - y.transpose()
         costs.add(calculateCost(loss))
 
@@ -70,5 +70,9 @@ class LinearRegression {
             Xn.setCol(i+1, X.getCol(i))
         }
         return Xn
+    }
+
+    fun sigmoid(z: Double): Double {
+        return 1 / (1 + Math.exp(z))
     }
 }

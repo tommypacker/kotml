@@ -8,12 +8,12 @@ import krangl.readCSV
 
 /**
  *  This class is used as an abstraction layer to cleanly hold training and testing data for regression problems.
- *  It uses krangl to read in csv's from a file, then converts that into an array of DataRows.
+ *  It uses krangl to read in csv's from a file, then moves the data into koma's matrices.
  *  Alternatively, users can pass in an array of Datarows and doubles (labels) to use as the data.
  */
-class ContinuousDataset (filePath: String?, ignoreFirstCol: Boolean = false, splitRatio: Double = 0.7,
-                         data: Array<DataRow> = emptyArray(), labels: Array<Double> = emptyArray(),
-                         lastColLabels: Boolean = false) {
+class MatrixDataHolder (filePath: String?, ignoreFirstCol: Boolean = false, splitRatio: Double = 0.7,
+                        data: Array<DataRow> = emptyArray(), labels: Array<Double> = emptyArray(),
+                        lastColLabels: Boolean = false) {
 
     val data: Array<DataRow>
     val labels: Array<Double>

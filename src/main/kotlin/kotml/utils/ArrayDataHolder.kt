@@ -9,7 +9,7 @@ import krangl.readCSV
  *  It uses krangl to read in csv's from a file, then converts that into an array of Datarows.
  *  Alternatively, users can pass in an array of Datarows and strings (labels) to use as the data.
  */
-class DiscreteDataset (filePath: String?, ignoreFirstCol: Boolean, splitRatio: Double = 0.7,
+class ArrayDataHolder (filePath: String?, ignoreFirstCol: Boolean, splitRatio: Double = 0.7,
                        data: Array<DataRow> = emptyArray(), labels: Array<String> = emptyArray(),
                        lastColLabels: Boolean = false) {
 
