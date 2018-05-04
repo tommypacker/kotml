@@ -14,13 +14,14 @@ class LinearRegression {
      */
 
     var theta = eye(1)
+    val costs = mutableListOf<Double>()
+
 
     /**
-     *  Predict the value of of an input vector based on our model params
+     *  Predict the values of a matrix of values using our linear regression model
      */
-    fun predict(xVec: DoubleArray): Double {
-        val x = create(xVec)
-        return (x * theta).elementSum()
+    fun predictValues(features: Matrix<Double>): Matrix<Double> {
+        return addBiasCol(features) * theta
     }
 
     /**
@@ -31,10 +32,8 @@ class LinearRegression {
         theta = zeros(X.numCols(), 1)
         val y = create(yVals)
 
-        val costs = mutableListOf<Double>()
         for (k in 1..epochs) {
             updateWeights(X, y, learningRate)
-            costs.add(mseCostFunction(X, y))
         }
         println("Final theta values: " + theta)
     }
@@ -46,6 +45,7 @@ class LinearRegression {
         val N = X.numRows()
         val hypothesis = X * theta
         val loss = hypothesis - y.transpose()
+        costs.add(calculateCost(X, y))
 
         val gradient = (X.transpose() * loss).map { it / N * learningRate }
         theta = theta - gradient
@@ -54,7 +54,7 @@ class LinearRegression {
     /**
      *  Find the current cost of our model using MSE
      */
-    fun mseCostFunction(X: Matrix<Double>, y: Matrix<Double>): Double {
+    fun calculateCost(X: Matrix<Double>, y: Matrix<Double>): Double {
         val N = X.numRows()
         val hypothesis = X * theta
         val loss = hypothesis - y.transpose()
