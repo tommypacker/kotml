@@ -1,11 +1,8 @@
 package kotml.regression
 
-import koma.create
+import koma.*
 import koma.extensions.map
-import koma.eye
 import koma.matrix.Matrix
-import koma.ones
-import koma.zeros
 
 class LogisticRegression {
 
@@ -45,18 +42,21 @@ class LogisticRegression {
         val N = X.numRows()
         val hypothesis = (X * theta).map { sigmoid(it) }
         val loss = hypothesis - y.transpose()
-        costs.add(calculateCost(loss))
+        costs.add(calculateCost(y, hypothesis))
 
         val gradient = (X.transpose() * loss).map { it / N * learningRate }
         theta = theta - gradient
     }
 
     /**
-     *  Find the current cost of our model using MSE
+     *  Find the current cost of our model using Cross Entropy
      */
-    fun calculateCost(loss: Matrix<Double>): Double {
-        val cost = loss.map { Math.pow(it, 2.0) }.elementSum() / (loss.numRows())
-        return cost
+    fun calculateCost(y: Matrix<Double>, predictions: Matrix<Double>): Double {
+        val m = y.numRows()
+        val classOneCosts = -y * (ln(predictions))
+        val classTwoCosts = -(y.map { 1 - it }) * ln(predictions.map { 1 - it })
+        val costs = classOneCosts - classTwoCosts
+        return costs.elementSum() / m
     }
 
     /**
