@@ -63,6 +63,20 @@ BNB.fit(spamData.trainingData, spamData.trainingLabels)
 val accuracy = BNB.test(spamData.testData, spamData.testLabels)
 println(accuracy)
 ```
+
+```kotlin
+// Load Regression Data
+val regressionData = Datasets.loadSampleRegression()
+
+// Create Model
+val sl = LinearRegression()
+
+// Train model for a given learning rate and number of epochs
+sl.train(regressionData.trainingData, regressionData.trainingResponses, 0.0005, 10000)
+
+// Make Predictions
+val predictedValues = sl.predictValues(regressionData.trainingData)
+```
 More examples can be found in `examples.kt`
 
 References
